@@ -14,7 +14,9 @@
 | Language | JavaScript/TypeScript | Largest ecosystem, best community support |
 | Navigation | React Navigation (Stack + Bottom Tab) | Industry standard, smooth transitions |
 | State Management | React Context + useReducer | Lightweight, no extra dependencies needed for V1 |
-| Local Storage | AsyncStorage (via Expo) | Simple key-value storage, no backend needed for V1 |
+| Database | PostgreSQL (local) | Full SQL power, runs on device, no cloud costs |
+| Auth | Better Auth | Modern, flexible auth library for React Native |
+| File Storage | Cloudflare R2 | S3-compatible, free tier, no egress fees |
 | Styling | StyleSheet + custom theme system | Built-in performance, full control |
 | UI Framework | Custom (no library) | Every component is designed per the calm aesthetic |
 | Icons | @expo/vector-icons (Lucide/Feather) | Clean, minimal icons |
@@ -63,9 +65,27 @@ evenly-study/
 │   │   ├── AppContext.tsx
 │   │   ├── AppReducer.ts
 │   │   └── themes.ts          # Light/dark theme definitions
+│   ├── db/                    # Database layer
+│   │   ├── schema.sql         # PostgreSQL table definitions
+│   │   ├── connection.ts      # DB connection pool
+│   │   ├── migrations/        # Schema migration files
+│   │   │   ├── 001_initial.sql
+│   │   │   └── 002_add_auth.sql
+│   │   └── repositories/      # Data access layer
+│   │       ├── tasks.repo.ts
+│   │       ├── sleep.repo.ts
+│   │       ├── checkins.repo.ts
+│   │       └── user.repo.ts
+│   ├── auth/                  # Authentication (Better Auth)
+│   │   ├── auth.ts            # Better Auth config
+│   │   ├── AuthContext.tsx    # Auth state provider
+│   │   └── AuthScreen.tsx     # Login/signup screen
+│   ├── storage/               # File storage (Cloudflare R2)
+│   │   ├── r2.ts              # R2 client config
+│   │   └── upload.ts          # Upload/download helpers
 │   ├── utils/                 # Helper functions
 │   │   ├── burnoutAlgorithm.ts
-│   │   ├── storage.ts         # AsyncStorage wrapper
+│   │   ├── db.ts              # DB query helpers
 │   │   ├── recommendations.ts # Break/sleep/task suggestions
 │   │   └── scienceNotes.ts    # "Why this works" text data
 │   ├── data/                  # Static data
@@ -82,7 +102,8 @@ evenly-study/
 │   ├── useTasks.test.ts
 │   └── utils.test.ts
 ├── scripts/                   # Build/deploy scripts
-│   └── generate-icons.js
+│   ├── generate-icons.js
+│   └── db-migrate.js          # Run DB migrations
 └── Docs/                      # Documentation
     ├── evenly-study-prd.md
     └── implementation-plan.md
@@ -99,12 +120,20 @@ cd evenly-study
 npx expo install @react-navigation/native @react-navigation/native-stack @react-navigation/bottom-tabs
 npx expo install react-native-screens react-native-safe-area-context
 npx expo install @expo/vector-icons
-npx expo install @react-native-async-storage/async-storage
 npx expo install expo-notifications
 npx expo install date-fns
 npx expo install react-native-reanimated
 npx expo install react-native-gesture-handler
-npm install zustand  # Optional, if state gets complex
+
+# Database (PostgreSQL local)
+npm install pg
+npm install knex  # Query builder + migrations
+
+# Auth (Better Auth)
+npm install better-auth
+
+# Storage (Cloudflare R2)
+npm install @aws-sdk/client-s3  # R2 is S3-compatible
 
 # Setup scripts
 npx expo prebuild --clean  # Generate native project files
@@ -244,29 +273,139 @@ type Action =
 
 ### 2.2 Data Persistence
 
-**Storage Layer:** AsyncStorage (wrapped in custom `storage.ts`)
+**Database:** PostgreSQL running locally on the device. **No Supabase, no Firebase, no paid cloud database.**
 
-```typescript
-// storage.ts
-const STORAGE_KEYS = {
-  TASKS: 'tasks',
-  SLEEP: 'sleep',
-  CHECK_INS: 'check_ins',
-  SETTINGS: 'settings',
-  SKIPPED_BREAKS: 'skipped_breaks',
-  STATE_VERSION: 'state_version',
-};
+```sql
+-- schema.sql
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  name VARCHAR(255),
+  password_hash VARCHAR(255) NOT NULL,
+  target_bedtime TIME,
+  created_at TIMESTAMP DEFAULT NOW(),
+  updated_at TIMESTAMP DEFAULT NOW()
+);
 
-// Save: asyncSave(key, value) → JSON.stringify → AsyncStorage.setItem
-// Load: asyncLoad(key) → AsyncStorage.getItem → JSON.parse
-// Auto-save on every state change (debounced)
+CREATE TABLE tasks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  title VARCHAR(500) NOT NULL,
+  type VARCHAR(50) NOT NULL,  -- exam, essay, reading, group-project, custom
+  effort VARCHAR(20) NOT NULL, -- light, medium, heavy
+  due_date DATE NOT NULL,
+  completed BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE sleep_entries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  date DATE NOT NULL,
+  bedtime TIME NOT NULL,
+  wake_time TIME NOT NULL,
+  rest_score INTEGER NOT NULL CHECK (rest_score BETWEEN 1 AND 5),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE daily_checkins (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  date DATE NOT NULL,
+  mood_score INTEGER NOT NULL CHECK (mood_score BETWEEN 1 AND 5),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE skipped_breaks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  date DATE NOT NULL,
+  count INTEGER DEFAULT 1,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  start_time TIMESTAMP NOT NULL,
+  end_time TIMESTAMP,
+  break_length VARCHAR(20),  -- short, long
+  completed BOOLEAN DEFAULT FALSE,
+  skipped BOOLEAN DEFAULT FALSE
+);
 ```
 
-**Save triggers:**
-- After every task add/delete/update
-- After every check-in
-- After every settings change
-- Debounced save on every state change (500ms delay)
+**Connection (db/connection.ts):**
+```typescript
+import { Pool } from 'pg';
+
+const pool = new Pool({
+  host: 'localhost',
+  port: 5432,
+  database: 'evenly_study',
+  user: 'evenly_user',
+  password: process.env.DB_PASSWORD,
+});
+
+export const query = (text: string, params?: any[]) => pool.query(text, params);
+```
+
+**Migrations:** Use Knex.js for schema migrations.
+```bash
+npx knex migrate:latest
+```
+
+### 2.3 Authentication (Better Auth)
+
+**Library:** Better Auth — modern, flexible authentication for React Native.
+
+```typescript
+// auth/auth.ts
+import { betterAuth } from 'better-auth';
+
+export const auth = betterAuth({
+  database: pool,
+  emailAndPassword: {
+    enabled: true,
+  },
+  session: {
+    expiresIn: 30 * 24 * 60 * 60, // 30 days
+  },
+});
+```
+
+**Auth Flow:**
+- Sign up with email + password
+- Login with email + password
+- Session persists for 30 days
+- Password reset via email
+- All auth data stored in local PostgreSQL
+
+### 2.4 File Storage (Cloudflare R2)
+
+**Service:** Cloudflare R2 — S3-compatible object storage with free tier.
+
+```typescript
+// storage/r2.ts
+import { S3Client } from '@aws-sdk/client-s3';
+
+const r2 = new S3Client({
+  region: 'auto',
+  endpoint: process.env.R2_ENDPOINT,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+  },
+});
+
+// Use case: Store user-uploaded files (e.g., timetable photos for V2)
+// V1 may not need this much, but infrastructure is ready
+```
+
+**When to use R2:**
+- V2: Upload timetable images for schedule comparison
+- V2: Export weekly reports as PDF
+- Any future file storage needs
 
 ### 2.3 Burnout Algorithm
 
@@ -966,6 +1105,18 @@ npx expo run:android   # or expo run:ios
    - Upload APK/AAB
    - Wait for review (hours to days)
 
+### 13.4 Infrastructure (No Vercel, No Supabase)
+
+| Service | Purpose | Cost |
+|---|---|---|
+| PostgreSQL (local) | Database on device | Free |
+| Better Auth | Authentication | Free (self-hosted) |
+| Cloudflare R2 | File storage | Free tier (10GB) |
+| Expo EAS | Build service | Free tier |
+| GitHub | Code hosting | Free |
+
+**No paid services required for V1.**
+
 ### 13.4 Post-Launch
 
 - Monitor crash reports (Sentry or Expo's built-in)
@@ -993,9 +1144,9 @@ Features to add after real student testing:
 
 | Phase | Estimated Duration | Notes |
 |---|---|---|
-| Phase 0: Setup | 1 day | Install, configure, create repo |
+| Phase 0: Setup | 2-3 days | Install, configure, PostgreSQL, create repo |
 | Phase 1: Design System | 3-5 days | Colors, typography, components |
-| Phase 2: Architecture | 2-3 days | State, storage, navigation |
+| Phase 2: Architecture | 4-5 days | State, DB schema, auth, navigation |
 | Phase 3: Setup + Tasks | 5-7 days | Main user-facing core |
 | Phase 4: Check-ins + Indicator | 5-7 days | Core logic, most important screen |
 | Phase 5: Breaks | 4-5 days | Timer, menu, skip logic |
@@ -1007,7 +1158,7 @@ Features to add after real student testing:
 | Phase 11: Weekly Trend | 2-3 days | Chart, summary |
 | Phase 12: Polish + Test | 5-7 days | Onboarding, accessibility, bugs |
 | Phase 13: Deploy | 3-5 days | Builds, App Store, Play Store |
-| **Total V1: ~40-60 days** | | |
+| **Total V1: ~45-65 days** | | |
 
 ---
 
@@ -1022,6 +1173,8 @@ Features to add after real student testing:
 | Under-18 users | Review age-appropriate privacy/consent rules for launch regions |
 | Low adoption | Keep check-ins extremely short. Monitor return rates weekly |
 | Support accuracy | Curate resources carefully. Review quarterly for updated numbers |
+| Local DB complexity | Use Knex migrations to keep schema changes manageable |
+| Auth edge cases | Better Auth handles most; test thoroughly on both platforms |
 
 ---
 
