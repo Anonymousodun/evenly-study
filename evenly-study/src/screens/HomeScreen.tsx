@@ -3,29 +3,36 @@ import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useAppContext } from '../context/AppContext';
 import { Card } from '../components/common/Card';
 import AppText from '../components/common/Text';
+import { Button } from '../components/common/Button';
 import { IndicatorBadge } from '../components/burnout/IndicatorBadge';
 import { SuggestionCard } from '../components/burnout/SuggestionCard';
+import { WeeklyTrendMiniChart } from '../components/burnout/WeeklyTrendMiniChart';
+import { useSuggestions } from '../hooks/useSuggestions';
 import { getBurnoutSuggestion } from '../utils/burnoutAlgorithm';
+import { checkSleepProtection } from '../utils/sleepProtection';
+import { generateWeeklySummary } from '../utils/weeklySummary';
+
+function greeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
+}
 
 export function HomeScreen({ navigation }: any) {
   const { state, theme } = useAppContext();
-  const suggestion = getBurnoutSuggestion(state.burnoutLevel);
+  const { suggestions, approve, dismiss } = useSuggestions();
+  const sleepCheck = checkSleepProtection(state);
+  const summary = generateWeeklySummary(state);
+  const activeSuggestion = suggestions[0] ?? null;
 
-  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const trendData = weekDays.map((day, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (6 - i));
-    const dateStr = date.toISOString().split('T')[0];
-    const hasCheckIn = state.dailyCheckIns.some(c => c.date === dateStr);
-    const hasSleep = state.sleep.some(s => s.date === dateStr);
-    if (!hasCheckIn && !hasSleep) return { day, level: 'green' as const };
-    return { day, level: state.burnoutLevel };
-  });
+  const today = new Date().toISOString().split('T')[0];
+  const checkedInToday = state.dailyCheckIns.some(c => c.date === today);
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.bg }]}>
       <View style={styles.header}>
-        <AppText variant="h1">Good morning</AppText>
+        <AppText variant="h1">{greeting()}</AppText>
         <AppText variant="bodySmall" color="secondary">Let's check in with yourself</AppText>
       </View>
 
@@ -50,32 +57,38 @@ export function HomeScreen({ navigation }: any) {
         </AppText>
       </View>
 
-      <Card>
-        <AppText variant="label" color="secondary">This week</AppText>
-        <View style={styles.trendDots}>
-          {trendData.map((d, i) => (
-            <View key={i} style={styles.trendItem}>
-              <View
-                style={[
-                  styles.trendDot,
-                  {
-                    backgroundColor:
-                      d.level === 'green' ? theme.colors.indicatorGreen :
-                      d.level === 'yellow' ? theme.colors.indicatorYellow :
-                      theme.colors.indicatorRed,
-                  },
-                ]}
-              />
-              <AppText variant="caption" color="secondary">{d.day}</AppText>
-            </View>
-          ))}
-        </View>
-      </Card>
+      {!checkedInToday && (
+        <Card>
+          <AppText variant="body">Haven't checked in today — it takes 5 seconds.</AppText>
+          <Button title="Check in now" onPress={() => navigation.navigate('CheckIn')} variant="secondary" />
+        </Card>
+      )}
 
-      <SuggestionCard
-        text={suggestion}
-        onWhy={() => {}}
-      />
+      {sleepCheck.exceeded && (
+        <Card>
+          <AppText variant="label" color="secondary">🌙 Sleep protection</AppText>
+          <AppText variant="body" style={styles.bannerText}>{sleepCheck.message}</AppText>
+          <AppText variant="bodySmall" color="secondary">{sleepCheck.suggestedAction}</AppText>
+        </Card>
+      )}
+
+      <TouchableOpacity onPress={() => navigation.navigate('WeeklyTrend')} activeOpacity={0.8}>
+        <Card>
+          <AppText variant="label" color="secondary">This week — tap for details</AppText>
+          <WeeklyTrendMiniChart data={summary.days.map(d => d.level)} />
+        </Card>
+      </TouchableOpacity>
+
+      {activeSuggestion ? (
+        <SuggestionCard
+          text={activeSuggestion.text}
+          onWhy={() => {}}
+          onApprove={() => approve(activeSuggestion.id)}
+          onDismiss={() => dismiss(activeSuggestion.id)}
+        />
+      ) : (
+        <SuggestionCard text={getBurnoutSuggestion(state.burnoutLevel)} onWhy={() => {}} />
+      )}
 
       <View style={{ height: 100 }} />
     </ScrollView>
@@ -114,18 +127,8 @@ const styles = StyleSheet.create({
     marginTop: 4,
     textAlign: 'center',
   },
-  trendDots: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 12,
-  },
-  trendItem: {
-    alignItems: 'center',
-  },
-  trendDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginBottom: 4,
+  bannerText: {
+    marginTop: 8,
+    lineHeight: 24,
   },
 });

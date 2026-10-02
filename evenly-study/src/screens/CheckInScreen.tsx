@@ -1,19 +1,20 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
 import { Card } from '../components/common/Card';
-import { Button } from '../components/common/Button';
+import { CheckInSlider } from '../components/common/CheckInSlider';
+import { Toast } from '../components/common/Toast';
 import { generateId } from '../utils/id';
+import { getReinforcementMessage } from '../utils/reinforcement';
 
-const MOODS = ['😞', '😕', '😐', '🙂', '😊'];
-
-export function CheckInScreen() {
+export function CheckInScreen({ navigation }: any) {
   const { state, dispatch, theme } = useAppContext();
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
-  const [bedtime, setBedtime] = useState(state.settings.targetBedtime || '23:00');
-  const [wakeTime, setWakeTime] = useState('07:00');
+  const [bedtime] = useState(state.settings.targetBedtime || '23:00');
+  const [wakeTime] = useState('07:00');
   const [restScore, setRestScore] = useState<number | null>(null);
+  const [toast, setToast] = useState('');
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -29,6 +30,8 @@ export function CheckInScreen() {
         created_at: new Date().toISOString(),
       },
     });
+    setToast('Checked in ✓');
+    setTimeout(() => navigation.navigate('Home'), 800);
   };
 
   const handleRestSelect = (score: number) => {
@@ -45,6 +48,8 @@ export function CheckInScreen() {
         created_at: new Date().toISOString(),
       },
     });
+    const message = getReinforcementMessage(state);
+    setToast(message || 'Sleep logged 🌙');
   };
 
   return (
@@ -54,21 +59,7 @@ export function CheckInScreen() {
         <AppText variant="bodySmall" color="secondary">How are you feeling today?</AppText>
       </View>
 
-      <View style={styles.moodRow}>
-        {MOODS.map((mood, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.moodCircle,
-              { backgroundColor: theme.colors.surface },
-              selectedMood === index + 1 && { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
-            ]}
-            onPress={() => handleMoodSelect(index + 1)}
-          >
-            <AppText style={styles.moodEmoji}>{mood}</AppText>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <CheckInSlider value={selectedMood} onSelect={handleMoodSelect} />
 
       <Card>
         <AppText variant="label" color="secondary">Sleep Check-in</AppText>
@@ -90,21 +81,9 @@ export function CheckInScreen() {
         How rested do you feel?
       </AppText>
 
-      <View style={styles.moodRow}>
-        {MOODS.map((mood, index) => (
-          <TouchableOpacity
-            key={index}
-            style={[
-              styles.moodCircle,
-              { backgroundColor: theme.colors.surface },
-              restScore === index + 1 && { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
-            ]}
-            onPress={() => handleRestSelect(index + 1)}
-          >
-            <AppText style={styles.moodEmoji}>{mood}</AppText>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <CheckInSlider value={restScore} onSelect={handleRestSelect} />
+
+      <Toast message={toast} visible={toast !== ''} onHide={() => setToast('')} />
 
       <View style={{ height: 100 }} />
     </ScrollView>
@@ -118,24 +97,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   header: {
-    marginBottom: 24,
-  },
-  moodRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginVertical: 24,
-  },
-  moodCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  moodEmoji: {
-    fontSize: 24,
+    marginBottom: 8,
   },
   sleepSubtitle: {
     marginTop: 4,

@@ -3,29 +3,12 @@ import { View, StyleSheet, ScrollView } from 'react-native';
 import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
 import { Card } from '../components/common/Card';
+import { WeeklyTrendMiniChart } from '../components/burnout/WeeklyTrendMiniChart';
+import { generateWeeklySummary } from '../utils/weeklySummary';
 
 export function WeeklyTrendScreen() {
   const { state, theme } = useAppContext();
-
-  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const trendData = weekDays.map((day, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - (6 - i));
-    const dateStr = date.toISOString().split('T')[0];
-    const checkIn = state.dailyCheckIns.find(c => c.date === dateStr);
-    const sleep = state.sleep.find(s => s.date === dateStr);
-    return {
-      day,
-      date: dateStr,
-      mood: checkIn?.mood_score,
-      sleep: sleep ? calculateSleepHours(sleep.bedtime, sleep.wake_time) : null,
-      level: state.burnoutLevel,
-    };
-  });
-
-  const greenDays = trendData.filter(d => d.level === 'green').length;
-  const yellowDays = trendData.filter(d => d.level === 'yellow').length;
-  const redDays = trendData.filter(d => d.level === 'red').length;
+  const summary = generateWeeklySummary(state);
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.bg }]}>
@@ -35,22 +18,10 @@ export function WeeklyTrendScreen() {
       </View>
 
       <Card>
-        <View style={styles.chart}>
-          {trendData.map((d, i) => (
-            <View key={i} style={styles.chartItem}>
-              <View
-                style={[
-                  styles.chartDot,
-                  {
-                    backgroundColor:
-                      d.level === 'green' ? theme.colors.indicatorGreen :
-                      d.level === 'yellow' ? theme.colors.indicatorYellow :
-                      theme.colors.indicatorRed,
-                  },
-                ]}
-              />
-              <AppText variant="caption" color="secondary">{d.day}</AppText>
-            </View>
+        <WeeklyTrendMiniChart data={summary.days.map(d => d.level)} />
+        <View style={styles.dayLabels}>
+          {summary.days.map((d, i) => (
+            <AppText key={i} variant="caption" color="secondary">{d.day}</AppText>
           ))}
         </View>
       </Card>
@@ -58,18 +29,30 @@ export function WeeklyTrendScreen() {
       <Card>
         <AppText variant="label" color="secondary">Summary</AppText>
         <AppText variant="body" style={styles.summaryText}>
-          You had {greenDays} green days, {yellowDays} yellow, and {redDays} red this week.
+          You had {summary.greenDays} green days, {summary.yellowDays} yellow, and {summary.redDays} red this week.
         </AppText>
+        {(summary.avgMood !== null || summary.avgSleep !== null) && (
+          <AppText variant="bodySmall" color="secondary" style={styles.summaryText}>
+            {summary.avgMood !== null && `Avg mood: ${summary.avgMood.toFixed(1)}/5`}
+            {summary.avgMood !== null && summary.avgSleep !== null && ' · '}
+            {summary.avgSleep !== null && `Avg sleep: ${summary.avgSleep.toFixed(1)}h`}
+          </AppText>
+        )}
+      </Card>
+
+      <Card>
+        <AppText variant="label" color="secondary">Insight</AppText>
+        <AppText variant="body" style={styles.summaryText}>{summary.insight}</AppText>
       </Card>
 
       <Card>
         <AppText variant="label" color="secondary">Daily Details</AppText>
-        {trendData.map((d, i) => (
+        {summary.days.map((d, i) => (
           <View key={i} style={styles.detailRow}>
             <AppText variant="bodySmall">{d.day}</AppText>
             <AppText variant="bodySmall" color="secondary">
               {d.mood ? `Mood: ${d.mood}/5` : 'No check-in'}
-              {d.sleep ? ` · Sleep: ${d.sleep.toFixed(1)}h` : ''}
+              {d.sleepHours !== null ? ` · Sleep: ${d.sleepHours.toFixed(1)}h` : ''}
             </AppText>
           </View>
         ))}
@@ -78,15 +61,6 @@ export function WeeklyTrendScreen() {
       <View style={{ height: 100 }} />
     </ScrollView>
   );
-}
-
-function calculateSleepHours(bedtime: string, wakeTime: string): number {
-  const [bedHour, bedMin] = bedtime.split(':').map(Number);
-  const [wakeHour, wakeMin] = wakeTime.split(':').map(Number);
-  let bedTotal = bedHour * 60 + bedMin;
-  let wakeTotal = wakeHour * 60 + wakeMin;
-  if (wakeTotal < bedTotal) wakeTotal += 24 * 60;
-  return (wakeTotal - bedTotal) / 60;
 }
 
 const styles = StyleSheet.create({
@@ -98,19 +72,10 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 24,
   },
-  chart: {
+  dayLabels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: 12,
-  },
-  chartItem: {
-    alignItems: 'center',
-  },
-  chartDot: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    marginBottom: 4,
+    marginTop: 8,
   },
   summaryText: {
     marginTop: 8,
