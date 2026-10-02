@@ -7,7 +7,7 @@ import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import { TaskType, TaskEffort } from '../types';
 import { useTasks } from '../hooks/useTasks';
-import templates from '../data/templates.json';
+import { TaskTemplatePicker } from '../components/tasks/TaskTemplatePicker';
 
 export function TaskFormScreen({ navigation }: any) {
   const { addTask } = useTasks();
@@ -37,22 +37,7 @@ export function TaskFormScreen({ navigation }: any) {
       />
 
       <AppText variant="label" color="secondary">Type</AppText>
-      <View style={styles.templateGrid}>
-        {templates.map((t) => (
-          <TouchableOpacity
-            key={t.type}
-            style={[
-              styles.templateCard,
-              { backgroundColor: theme.colors.surface },
-              selectedType === t.type && { borderColor: theme.colors.primary, borderWidth: 2 },
-            ]}
-            onPress={() => setSelectedType(t.type as TaskType)}
-          >
-            <AppText style={styles.templateIcon}>{t.icon}</AppText>
-            <AppText variant="label">{t.label}</AppText>
-          </TouchableOpacity>
-        ))}
-      </View>
+      <TaskTemplatePicker selected={selectedType} onSelect={setSelectedType} />
 
       <AppText variant="label" color="secondary">Effort</AppText>
       <View style={styles.effortRow}>

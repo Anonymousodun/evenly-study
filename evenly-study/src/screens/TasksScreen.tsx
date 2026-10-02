@@ -1,42 +1,37 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView } from 'react-native';
 import { useAppContext } from '../context/AppContext';
-import { Card } from '../components/common/Card';
 import AppText from '../components/common/Text';
 import { EmptyState } from '../components/common/EmptyState';
 import { Button } from '../components/common/Button';
-import { Task } from '../types';
+import { TaskCard } from '../components/tasks/TaskCard';
 
 export function TasksScreen({ navigation }: any) {
-  const { state, theme } = useAppContext();
+  const { state, dispatch, theme } = useAppContext();
 
   const sortedTasks = [...state.tasks].sort((a, b) => {
     if (a.completed !== b.completed) return a.completed ? 1 : -1;
     return new Date(a.due_date).getTime() - new Date(b.due_date).getTime();
   });
 
-  const getEffortColor = (effort: string) => {
-    switch (effort) {
-      case 'light': return theme.colors.indicatorGreen;
-      case 'medium': return theme.colors.indicatorYellow;
-      case 'heavy': return theme.colors.indicatorRed;
-      default: return theme.colors.border;
+  const handleComplete = (taskId: string) => {
+    const task = state.tasks.find(t => t.id === taskId);
+    if (task) {
+      dispatch({ type: 'UPDATE_TASK', payload: { ...task, completed: !task.completed } });
     }
   };
 
-  const formatDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    const today = new Date();
-    const diffDays = Math.ceil((date.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    if (diffDays === 0) return 'Today';
-    if (diffDays === 1) return 'Tomorrow';
-    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-  };
+  const activeCount = state.tasks.filter(t => !t.completed).length;
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.bg }]}>
       <View style={styles.header}>
         <AppText variant="h1">Tasks</AppText>
+        {activeCount > 0 && (
+          <AppText variant="bodySmall" color="secondary">
+            {activeCount} active
+          </AppText>
+        )}
       </View>
 
       {sortedTasks.length === 0 ? (
@@ -48,24 +43,12 @@ export function TasksScreen({ navigation }: any) {
       ) : (
         <ScrollView style={styles.list}>
           {sortedTasks.map((task) => (
-            <TouchableOpacity
+            <TaskCard
               key={task.id}
+              task={task}
               onPress={() => navigation.navigate('TaskDetail', { taskId: task.id })}
-            >
-              <Card style={styles.taskCard}>
-                <View style={styles.taskRow}>
-                  <View style={[styles.effortDot, { backgroundColor: getEffortColor(task.effort) }]} />
-                  <View style={styles.taskInfo}>
-                    <AppText variant="body" style={task.completed ? styles.completedTask : undefined}>
-                      {task.title}
-                    </AppText>
-                    <AppText variant="caption" color="secondary">
-                      {formatDate(task.due_date)} · {task.effort}
-                    </AppText>
-                  </View>
-                </View>
-              </Card>
-            </TouchableOpacity>
+              onComplete={() => handleComplete(task.id)}
+            />
           ))}
           <View style={{ height: 80 }} />
         </ScrollView>
@@ -92,29 +75,6 @@ const styles = StyleSheet.create({
   },
   list: {
     flex: 1,
-  },
-  taskCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-  },
-  taskRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  effortDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 12,
-  },
-  taskInfo: {
-    flex: 1,
-  },
-  completedTask: {
-    textDecorationLine: 'line-through',
-    opacity: 0.6,
   },
   fab: {
     position: 'absolute',
