@@ -1,10 +1,12 @@
 import { useEffect } from 'react';
 import * as Notifications from 'expo-notifications';
+import { SchedulableTriggerInputTypes } from 'expo-notifications';
 import { useAppContext } from '../context/AppContext';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
   }),
@@ -37,6 +39,7 @@ export function useNotifications() {
         sound: false,
       },
       trigger: {
+        type: SchedulableTriggerInputTypes.CALENDAR,
         hour: windDownHour,
         minute: minute,
         repeats: true,
@@ -52,7 +55,9 @@ export function useNotifications() {
         sound: false,
       },
       trigger: {
+        type: SchedulableTriggerInputTypes.TIME_INTERVAL,
         seconds: delayMinutes * 60,
+        repeats: false,
       },
     });
   };
@@ -65,6 +70,7 @@ export function useNotifications() {
         sound: false,
       },
       trigger: {
+        type: SchedulableTriggerInputTypes.CALENDAR,
         hour: 8,
         minute: 0,
         repeats: true,

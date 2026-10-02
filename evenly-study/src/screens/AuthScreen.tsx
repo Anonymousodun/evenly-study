@@ -21,6 +21,7 @@ export function AuthScreen({ navigation }: any) {
         id: generateId(),
         email,
         name: name || null,
+        password_hash: '',
         target_bedtime: '23:00',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

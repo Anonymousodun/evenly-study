@@ -54,6 +54,7 @@ export interface User {
   id: string;
   email: string;
   name: string | null;
+  password_hash: string;
   target_bedtime: string | null;
   created_at: string;
   updated_at: string;
