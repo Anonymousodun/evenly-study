@@ -1,0 +1,83 @@
+export const lightTheme = {
+  colors: {
+    primary: '#6B8F71',
+    warning: '#C9A227',
+    danger: '#B87333',
+    bg: '#F7F5F0',
+    surface: '#FFFFFF',
+    text: '#2D2D2D',
+    textSecondary: '#6B6B6B',
+    border: '#E0DDD8',
+    indicatorGreen: '#7BAF7B',
+    indicatorYellow: '#C4A842',
+    indicatorRed: '#C47B4A',
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 48,
+    xxxl: 64,
+  },
+  radius: {
+    sm: 8,
+    md: 12,
+    lg: 20,
+    full: 9999,
+  },
+  typography: {
+    display: { fontSize: 32, fontWeight: '700' as const },
+    h1: { fontSize: 24, fontWeight: '600' as const },
+    h2: { fontSize: 20, fontWeight: '600' as const },
+    body: { fontSize: 16, fontWeight: '400' as const },
+    bodySmall: { fontSize: 14, fontWeight: '400' as const },
+    label: { fontSize: 14, fontWeight: '500' as const },
+    caption: { fontSize: 12, fontWeight: '400' as const },
+    indicator: { fontSize: 48, fontWeight: '300' as const },
+  },
+};
+
+export const darkTheme = {
+  colors: {
+    primary: '#8FB892',
+    warning: '#D4B744',
+    danger: '#D48A5C',
+    bg: '#1A1A1A',
+    surface: '#2A2A2A',
+    text: '#F0F0F0',
+    textSecondary: '#9A9A9A',
+    border: '#3A3A3A',
+    indicatorGreen: '#6DBF6D',
+    indicatorYellow: '#C4A842',
+    indicatorRed: '#C47B4A',
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
+    xxl: 48,
+    xxxl: 64,
+  },
+  radius: {
+    sm: 8,
+    md: 12,
+    lg: 20,
+    full: 9999,
+  },
+  typography: {
+    display: { fontSize: 32, fontWeight: '700' as const },
+    h1: { fontSize: 24, fontWeight: '600' as const },
+    h2: { fontSize: 20, fontWeight: '600' as const },
+    body: { fontSize: 16, fontWeight: '400' as const },
+    bodySmall: { fontSize: 14, fontWeight: '400' as const },
+    label: { fontSize: 14, fontWeight: '500' as const },
+    caption: { fontSize: 12, fontWeight: '400' as const },
+    indicator: { fontSize: 48, fontWeight: '300' as const },
+  },
+};
+
+export type Theme = typeof lightTheme;

@@ -1,0 +1,6 @@
+[
+  { "type": "exam", "label": "Exam", "icon": "school", "defaultEffort": "heavy" },
+  { "type": "essay", "label": "Essay", "icon": "document-text", "defaultEffort": "heavy" },
+  { "type": "reading", "label": "Reading", "icon": "book-open", "defaultEffort": "medium" },
+  { "type": "group-project", "label": "Group Project", "icon": "people", "defaultEffort": "medium" }
+]
