@@ -1,84 +1,161 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, Vibration } from 'react-native';
 import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
+import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
-import { generateId } from '../utils/id';
+import { Toast } from '../components/common/Toast';
+import { BreakOption } from '../components/breaks/BreakOption';
+import { useBreaks } from '../hooks/useBreaks';
+import { useNotifications } from '../hooks/useNotifications';
 
-interface BreakOption {
+interface BreakDef {
   id: string;
   icon: string;
   title: string;
-  duration: string;
+  minutes: number;
   description: string;
 }
 
-const BREAK_OPTIONS: BreakOption[] = [
-  { id: '1', icon: '👁️', title: 'Eyes-off-screen reset', duration: '2 min', description: 'Look at something far away' },
-  { id: '2', icon: '🌬️', title: 'Breathing exercise', duration: '3 min', description: '4-7-8 breathing pattern' },
-  { id: '3', icon: '🧘', title: 'Stretch sequence', duration: '5 min', description: 'Neck, shoulders, back' },
-  { id: '4', icon: '🚶', title: 'Quick walk', duration: '10 min', description: 'Around the block' },
+const BREAK_OPTIONS: BreakDef[] = [
+  { id: '1', icon: '👁️', title: 'Eyes-off-screen reset', minutes: 2, description: 'Look at something far away' },
+  { id: '2', icon: '🌬️', title: 'Breathing exercise', minutes: 3, description: '4-7-8 breathing pattern' },
+  { id: '3', icon: '🧘', title: 'Stretch sequence', minutes: 5, description: 'Neck, shoulders, back' },
+  { id: '4', icon: '🚶', title: 'Quick walk', minutes: 10, description: 'Around the block' },
 ];
 
-export function BreaksScreen() {
-  const { theme, dispatch } = useAppContext();
-  const [selectedBreak, setSelectedBreak] = useState<BreakOption | null>(null);
-  const [timerActive, setTimerActive] = useState(false);
+function formatTime(totalSeconds: number): string {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
 
-  const handleBreakSelect = (breakOption: BreakOption) => {
-    setSelectedBreak(breakOption);
-    setTimerActive(true);
+export function BreaksScreen({ navigation }: any) {
+  const { state, theme } = useAppContext();
+  const { logSkippedBreak, getSkipCount } = useBreaks();
+  const { scheduleBreakReminder } = useNotifications();
+
+  const [mode, setMode] = useState<'idle' | 'focus' | 'break'>('idle');
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [selectedBreak, setSelectedBreak] = useState<BreakDef | null>(null);
+  const [toast, setToast] = useState('');
+  const [warmDismissed, setWarmDismissed] = useState(false);
+
+  useEffect(() => {
+    if (mode === 'idle') return;
+    if (secondsLeft <= 0) {
+      handleTimerEnd();
+      return;
+    }
+    const t = setTimeout(() => setSecondsLeft(s => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [mode, secondsLeft]);
+
+  const handleTimerEnd = () => {
+    Vibration.vibrate(500);
+    if (mode === 'focus') {
+      setMode('idle');
+      setToast('Focus session done — pick a break 🌿');
+    } else {
+      setMode('idle');
+      setSelectedBreak(null);
+      setToast('Nice — rest is part of the work 🌿');
+    }
+  };
+
+  const startFocus = () => {
+    setSelectedBreak(null);
+    setSecondsLeft(state.settings.focusLength * 60);
+    setMode('focus');
+  };
+
+  const startBreak = (option: BreakDef) => {
+    setSelectedBreak(option);
+    setSecondsLeft(option.minutes * 60);
+    setMode('break');
+  };
+
+  const cancelTimer = () => {
+    setMode('idle');
+    setSelectedBreak(null);
   };
 
   const handleSkipBreak = () => {
-    const today = new Date().toISOString().split('T')[0];
-    dispatch({
-      type: 'LOG_SKIPPED_BREAK',
-      payload: {
-        id: generateId(),
-        user_id: '',
-        date: today,
-        count: 1,
-        created_at: new Date().toISOString(),
-      },
-    });
+    logSkippedBreak();
+    scheduleBreakReminder(15);
+    setMode('idle');
+    setSelectedBreak(null);
+    setToast("Logged quietly — we'll nudge you in a bit");
   };
+
+  const elevated = state.burnoutLevel !== 'green';
+  const options = [...BREAK_OPTIONS].sort((a, b) =>
+    elevated ? b.minutes - a.minutes : a.minutes - b.minutes
+  );
+  const showWarmCheckIn = getSkipCount(5) >= 3 && !warmDismissed;
 
   return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.bg }]}>
       <View style={styles.header}>
-        <AppText variant="h1">Break Time</AppText>
-        <AppText variant="bodySmall" color="secondary">Choose what feels right for you</AppText>
+        <AppText variant="h1">{mode === 'idle' ? 'Break Time' : mode === 'focus' ? 'Focus Session' : 'On a Break'}</AppText>
+        <AppText variant="bodySmall" color="secondary">
+          {mode === 'idle' ? 'Choose what feels right for you' : mode === 'focus' ? 'Stay with it — one session at a time' : selectedBreak?.title}
+        </AppText>
       </View>
 
-      {timerActive && selectedBreak ? (
+      {mode !== 'idle' ? (
         <View style={[styles.timerCard, { backgroundColor: theme.colors.surface }]}>
-          <AppText variant="indicator" style={styles.timerText}>00:00</AppText>
-          <AppText variant="h2" style={styles.timerTitle}>{selectedBreak.title}</AppText>
-          <AppText variant="bodySmall" color="secondary">{selectedBreak.description}</AppText>
-          <Button title="End Break" onPress={() => setTimerActive(false)} variant="secondary" style={styles.endBtn} />
+          <AppText style={styles.timerText}>{formatTime(secondsLeft)}</AppText>
+          <AppText variant="bodySmall" color="secondary">
+            {mode === 'focus' ? `Focusing for ${state.settings.focusLength} min` : `${selectedBreak?.minutes} min break`}
+          </AppText>
+          <View style={styles.timerActions}>
+            <Button title="End" onPress={cancelTimer} variant="secondary" />
+            {mode === 'break' && (
+              <Button title="Skip break" onPress={handleSkipBreak} variant="text" />
+            )}
+          </View>
         </View>
       ) : (
         <View>
-          {BREAK_OPTIONS.map((option) => (
-            <TouchableOpacity
+          <Card>
+            <AppText variant="body">Start a {state.settings.focusLength}-minute focus session?</AppText>
+            <Button title="▶ Start focus" onPress={startFocus} variant="secondary" />
+          </Card>
+
+          {elevated && (
+            <AppText variant="bodySmall" color="secondary" style={styles.note}>
+              Your load is building, so longer breaks are listed first today.
+            </AppText>
+          )}
+
+          {options.map((option) => (
+            <BreakOption
               key={option.id}
-              style={[styles.breakCard, { backgroundColor: theme.colors.surface }]}
-              onPress={() => handleBreakSelect(option)}
-            >
-              <View style={[styles.breakIcon, { backgroundColor: theme.colors.bg }]}>
-                <AppText style={styles.breakIconText}>{option.icon}</AppText>
-              </View>
-              <View style={styles.breakInfo}>
-                <AppText variant="body">{option.title}</AppText>
-                <AppText variant="caption" color="secondary">{option.duration} · {option.description}</AppText>
-              </View>
-            </TouchableOpacity>
+              icon={option.icon}
+              title={option.title}
+              duration={`${option.minutes} min`}
+              description={option.description}
+              onPress={() => startBreak(option)}
+            />
           ))}
         </View>
       )}
 
-      <Button title="Skip break" onPress={handleSkipBreak} variant="text" />
+      {showWarmCheckIn && (
+        <Card>
+          <AppText variant="label" color="secondary">💛 A gentle check-in</AppText>
+          <AppText variant="body" style={styles.bannerText}>
+            You've skipped breaks for a few days. How are you actually doing?
+          </AppText>
+          <View style={styles.warmActions}>
+            <Button title="I'm okay" onPress={() => setWarmDismissed(true)} variant="secondary" />
+            <Button title="Talk to someone" onPress={() => navigation.navigate('Support')} variant="text" />
+          </View>
+        </Card>
+      )}
+
+      <Toast message={toast} visible={toast !== ''} onHide={() => setToast('')} />
 
       <View style={{ height: 100 }} />
     </ScrollView>
@@ -94,31 +171,9 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 24,
   },
-  breakCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
+  note: {
     marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
-  },
-  breakIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  breakIconText: {
-    fontSize: 24,
-  },
-  breakInfo: {
-    flex: 1,
+    textAlign: 'center',
   },
   timerCard: {
     alignItems: 'center',
@@ -129,12 +184,22 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: 48,
     fontWeight: '300',
-    marginBottom: 16,
-  },
-  timerTitle: {
     marginBottom: 8,
   },
-  endBtn: {
+  timerActions: {
+    flexDirection: 'row',
+    gap: 12,
     marginTop: 24,
+    alignItems: 'center',
+  },
+  bannerText: {
+    marginTop: 8,
+    lineHeight: 24,
+  },
+  warmActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 16,
+    alignItems: 'center',
   },
 });
