@@ -5,7 +5,7 @@ import AppText from '../components/common/Text';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
-import { generateId } from '../utils/id';
+import { signUp, signIn } from '../api/auth';
 
 export function AuthScreen() {
   const { dispatch, theme } = useAppContext();
@@ -13,25 +13,37 @@ export function AuthScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
   const handleSubmit = async () => {
-    if (!email.trim() || !password) return;
-    // New accounts go through setup; returning users land on their dashboard.
-    if (!isLogin) {
-      dispatch({ type: 'UPDATE_SETTINGS', payload: { setupComplete: false } });
+    if (!email.trim() || !password || busy) return;
+    setError('');
+    setBusy(true);
+    try {
+      const user = isLogin
+        ? await signIn(email.trim(), password)
+        : await signUp(name.trim(), email.trim(), password);
+      if (!isLogin) {
+        dispatch({ type: 'UPDATE_SETTINGS', payload: { setupComplete: false } });
+      }
+      dispatch({
+        type: 'SET_USER',
+        payload: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          password_hash: '',
+          target_bedtime: '23:00',
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+      });
+    } catch (err) {
+      setError((err as Error).message || 'Something went wrong. Is the server running?');
+    } finally {
+      setBusy(false);
     }
-    dispatch({
-      type: 'SET_USER',
-      payload: {
-        id: generateId(),
-        email: email.trim(),
-        name: name.trim() || null,
-        password_hash: '',
-        target_bedtime: '23:00',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      },
-    });
   };
 
   return (
@@ -69,7 +81,15 @@ export function AuthScreen() {
         secureTextEntry
       />
 
-      <Button title={isLogin ? 'Sign In' : 'Sign Up'} onPress={handleSubmit} />
+      {!!error && (
+        <AppText variant="bodySmall" style={styles.error}>{error}</AppText>
+      )}
+
+      <Button
+        title={busy ? 'Please wait…' : isLogin ? 'Sign In' : 'Sign Up'}
+        onPress={handleSubmit}
+        disabled={busy}
+      />
 
       <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
         <AppText variant="bodySmall" color="secondary" style={styles.switchText}>
@@ -94,5 +114,10 @@ const styles = StyleSheet.create({
   switchText: {
     textAlign: 'center',
     marginTop: 16,
+  },
+  error: {
+    color: '#B87333',
+    textAlign: 'center',
+    marginBottom: 12,
   },
 });

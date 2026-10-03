@@ -12,8 +12,14 @@ import { SleepSettingsScreen } from '../screens/SleepSettingsScreen';
 import { AuthScreen } from '../screens/AuthScreen';
 import { AISupportScreen } from '../screens/AISupportScreen';
 import { useAppContext } from '../context/AppContext';
+import { useSync } from '../hooks/useSync';
 
 const Stack = createNativeStackNavigator();
+
+function SyncGate() {
+  useSync();
+  return null;
+}
 
 export function AppNavigator() {
   const { state, theme } = useAppContext();
@@ -26,6 +32,8 @@ export function AppNavigator() {
   return (
     <NavigationContainer>
       {state.user ? (
+        <>
+        <SyncGate />
         <Stack.Navigator
           screenOptions={screenOptions}
           initialRouteName={state.settings.setupComplete ? 'MainTabs' : 'Setup'}
@@ -40,6 +48,7 @@ export function AppNavigator() {
           <Stack.Screen name="WeeklyTrend" component={WeeklyTrendScreen} />
           <Stack.Screen name="SleepSettings" component={SleepSettingsScreen} />
         </Stack.Navigator>
+        </>
       ) : (
         <Stack.Navigator screenOptions={screenOptions}>
           <Stack.Screen name="Auth" component={AuthScreen} />

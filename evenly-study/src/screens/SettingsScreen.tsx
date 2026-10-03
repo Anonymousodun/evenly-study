@@ -5,13 +5,15 @@ import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
+import { signOut } from '../api/auth';
 
 const REGIONS = ['US', 'UK', 'CA', 'AU'];
 
 export function SettingsScreen({ navigation }: any) {
   const { state, dispatch, theme, isDark, toggleTheme } = useAppContext();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await signOut();
     dispatch({ type: 'SET_USER', payload: null });
   };
 

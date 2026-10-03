@@ -1,40 +1,75 @@
 import { useAppContext } from '../context/AppContext';
 import { Task, TaskType, TaskEffort } from '../types';
-import { getTasks, createTask, updateTask, deleteTask } from '../db/repositories/tasks.repo';
+import { api } from '../api/client';
+import { generateId } from '../utils/id';
 
 export function useTasks() {
   const { state, dispatch } = useAppContext();
 
   const loadTasks = async () => {
-    if (!state.user) return;
-    const tasks = await getTasks(state.user.id);
+    const tasks = await api.get<Task[]>('/api/tasks');
     dispatch({ type: 'LOAD_DATA', payload: { tasks } });
   };
 
   const addTask = async (title: string, type: TaskType, effort: TaskEffort, dueDate: string) => {
-    if (!state.user) return;
-    const task = await createTask({
-      user_id: state.user.id,
-      title,
-      type,
-      effort,
-      due_date: dueDate,
-      completed: false,
-    });
-    dispatch({ type: 'ADD_TASK', payload: task });
+    try {
+      const task = await api.post<Task>('/api/tasks', {
+        title,
+        type,
+        effort,
+        due_date: dueDate,
+      });
+      dispatch({ type: 'ADD_TASK', payload: task });
+      return task;
+    } catch {
+      const local: Task = {
+        id: generateId(),
+        user_id: state.user?.id || '',
+        title,
+        type,
+        effort,
+        due_date: dueDate,
+        completed: false,
+        created_at: new Date().toISOString(),
+      };
+      dispatch({ type: 'ADD_TASK', payload: local });
+      return local;
+    }
   };
 
-  const completeTask = async (taskId: string) => {
+  const toggleComplete = async (taskId: string) => {
     const task = state.tasks.find(t => t.id === taskId);
     if (!task) return;
-    const updated = await updateTask({ ...task, completed: true });
-    dispatch({ type: 'UPDATE_TASK', payload: updated });
+    try {
+      const updated = await api.patch<Task>(`/api/tasks/${taskId}`, {
+        completed: !task.completed,
+      });
+      dispatch({ type: 'UPDATE_TASK', payload: updated });
+    } catch {
+      dispatch({ type: 'UPDATE_TASK', payload: { ...task, completed: !task.completed } });
+    }
+  };
+
+  const moveTask = async (taskId: string, dueDate: string) => {
+    const task = state.tasks.find(t => t.id === taskId);
+    try {
+      const updated = await api.patch<Task>(`/api/tasks/${taskId}`, { due_date: dueDate });
+      dispatch({ type: 'UPDATE_TASK', payload: updated });
+    } catch {
+      if (task) {
+        dispatch({ type: 'UPDATE_TASK', payload: { ...task, due_date: dueDate } });
+      }
+    }
   };
 
   const removeTask = async (taskId: string) => {
-    await deleteTask(taskId);
+    try {
+      await api.del(`/api/tasks/${taskId}`);
+    } catch {
+      // Offline — still remove locally.
+    }
     dispatch({ type: 'DELETE_TASK', payload: taskId });
   };
 
-  return { tasks: state.tasks, loadTasks, addTask, completeTask, removeTask };
+  return { tasks: state.tasks, loadTasks, addTask, toggleComplete, moveTask, removeTask };
 }

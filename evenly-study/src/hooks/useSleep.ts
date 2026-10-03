@@ -1,26 +1,39 @@
 import { useAppContext } from '../context/AppContext';
 import { SleepEntry } from '../types';
-import { getSleepEntries, createSleepEntry } from '../db/repositories/sleep.repo';
+import { api } from '../api/client';
+import { generateId } from '../utils/id';
 
 export function useSleep() {
   const { state, dispatch } = useAppContext();
 
   const loadSleep = async () => {
-    if (!state.user) return;
-    const entries = await getSleepEntries(state.user.id);
+    const entries = await api.get<SleepEntry[]>('/api/sleep');
     dispatch({ type: 'LOAD_DATA', payload: { sleep: entries } });
   };
 
   const addSleepEntry = async (date: string, bedtime: string, wakeTime: string, restScore: number) => {
-    if (!state.user) return;
-    const entry = await createSleepEntry({
-      user_id: state.user.id,
-      date,
-      bedtime,
-      wake_time: wakeTime,
-      rest_score: restScore,
-    });
-    dispatch({ type: 'ADD_SLEEP_CHECKIN', payload: entry });
+    try {
+      const entry = await api.post<SleepEntry>('/api/sleep', {
+        date,
+        bedtime,
+        wake_time: wakeTime,
+        rest_score: restScore,
+      });
+      dispatch({ type: 'ADD_SLEEP_CHECKIN', payload: entry });
+      return entry;
+    } catch {
+      const local: SleepEntry = {
+        id: generateId(),
+        user_id: state.user?.id || '',
+        date,
+        bedtime,
+        wake_time: wakeTime,
+        rest_score: restScore,
+        created_at: new Date().toISOString(),
+      };
+      dispatch({ type: 'ADD_SLEEP_CHECKIN', payload: local });
+      return local;
+    }
   };
 
   return { sleep: state.sleep, loadSleep, addSleepEntry };

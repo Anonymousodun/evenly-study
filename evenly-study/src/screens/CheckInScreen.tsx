@@ -5,11 +5,14 @@ import AppText from '../components/common/Text';
 import { Card } from '../components/common/Card';
 import { CheckInSlider } from '../components/common/CheckInSlider';
 import { Toast } from '../components/common/Toast';
-import { generateId } from '../utils/id';
+import { useCheckIns } from '../hooks/useCheckIns';
+import { useSleep } from '../hooks/useSleep';
 import { getReinforcementMessage } from '../utils/reinforcement';
 
 export function CheckInScreen({ navigation }: any) {
-  const { state, dispatch, theme } = useAppContext();
+  const { state, theme } = useAppContext();
+  const { addCheckIn } = useCheckIns();
+  const { addSleepEntry } = useSleep();
   const [selectedMood, setSelectedMood] = useState<number | null>(null);
   const [bedtime] = useState(state.settings.targetBedtime || '23:00');
   const [wakeTime] = useState('07:00');
@@ -18,36 +21,24 @@ export function CheckInScreen({ navigation }: any) {
 
   const today = new Date().toISOString().split('T')[0];
 
-  const handleMoodSelect = (score: number) => {
+  const handleMoodSelect = async (score: number) => {
     setSelectedMood(score);
-    dispatch({
-      type: 'ADD_DAILY_CHECKIN',
-      payload: {
-        id: generateId(),
-        user_id: state.user?.id || '',
-        date: today,
-        mood_score: score,
-        created_at: new Date().toISOString(),
-      },
-    });
-    setToast('Checked in');
+    try {
+      await addCheckIn(today, score);
+      setToast('Checked in');
+    } catch {
+      setToast('Saved on this device — will sync later');
+    }
     setTimeout(() => navigation.navigate('Home'), 800);
   };
 
-  const handleRestSelect = (score: number) => {
+  const handleRestSelect = async (score: number) => {
     setRestScore(score);
-    dispatch({
-      type: 'ADD_SLEEP_CHECKIN',
-      payload: {
-        id: generateId(),
-        user_id: state.user?.id || '',
-        date: today,
-        bedtime: bedtime,
-        wake_time: wakeTime,
-        rest_score: score,
-        created_at: new Date().toISOString(),
-      },
-    });
+    try {
+      await addSleepEntry(today, bedtime, wakeTime, score);
+    } catch {
+      // Offline — local state still updates via sync later.
+    }
     const message = getReinforcementMessage(state);
     setToast(message || 'Sleep logged');
   };

@@ -10,6 +10,7 @@ import { ProgressBar } from '../components/common/ProgressBar';
 import { TimePicker } from '../components/common/TimePicker';
 import { IndicatorBadge } from '../components/burnout/IndicatorBadge';
 import { TaskTemplatePicker, getTemplateDefaults } from '../components/tasks/TaskTemplatePicker';
+import { useTasks } from '../hooks/useTasks';
 import { generateId } from '../utils/id';
 import { getBurnoutSuggestion } from '../utils/burnoutAlgorithm';
 import { TaskType, TaskEffort } from '../types';
@@ -39,6 +40,7 @@ function datePlusDays(days: number): string {
 
 export function SetupScreen({ navigation }: any) {
   const { state, dispatch, theme } = useAppContext();
+  const { addTask } = useTasks();
   const [step, setStep] = useState(0);
   const [bedtime, setBedtime] = useState('23:00');
   const [windows, setWindows] = useState<{ start: string; end: string }[]>([
@@ -80,23 +82,27 @@ export function SetupScreen({ navigation }: any) {
     setQuickTasks(quickTasks.filter(t => t.id !== id));
   };
 
-  const finishSetup = () => {
+  const finishSetup = async () => {
     dispatch({ type: 'UPDATE_SETTINGS', payload: { targetBedtime: bedtime, studyWindows: windows, setupComplete: true } });
-    quickTasks.forEach(t => {
-      dispatch({
-        type: 'ADD_TASK',
-        payload: {
-          id: t.id,
-          user_id: state.user?.id || '',
-          title: t.title,
-          type: t.type,
-          effort: t.effort,
-          due_date: datePlusDays(3),
-          completed: false,
-          created_at: new Date().toISOString(),
-        },
-      });
-    });
+    for (const t of quickTasks) {
+      try {
+        await addTask(t.title, t.type, t.effort, datePlusDays(3));
+      } catch {
+        dispatch({
+          type: 'ADD_TASK',
+          payload: {
+            id: t.id,
+            user_id: state.user?.id || '',
+            title: t.title,
+            type: t.type,
+            effort: t.effort,
+            due_date: datePlusDays(3),
+            completed: false,
+            created_at: new Date().toISOString(),
+          },
+        });
+      }
+    }
     navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
   };
 

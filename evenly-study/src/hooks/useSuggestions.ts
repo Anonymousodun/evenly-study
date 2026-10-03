@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { generateSuggestions } from '../utils/recommendations';
+import { useTasks } from './useTasks';
 
 export function useSuggestions() {
   const { state, dispatch } = useAppContext();
+  const { moveTask } = useTasks();
 
   useEffect(() => {
     if (state.burnoutLevel === 'green') return;
@@ -20,7 +22,7 @@ export function useSuggestions() {
     });
   }, [state.burnoutLevel, state.tasks.length]);
 
-  const approve = (suggestionId: string) => {
+  const approve = async (suggestionId: string) => {
     const suggestion = state.suggestions.find(s => s.id === suggestionId);
     if (!suggestion) return;
 
@@ -31,10 +33,7 @@ export function useSuggestions() {
       if (task) {
         const dueDate = new Date(task.due_date);
         dueDate.setDate(dueDate.getDate() + 1);
-        dispatch({
-          type: 'UPDATE_TASK',
-          payload: { ...task, due_date: dueDate.toISOString().split('T')[0] },
-        });
+        await moveTask(task.id, dueDate.toISOString().split('T')[0]);
       }
     }
   };
