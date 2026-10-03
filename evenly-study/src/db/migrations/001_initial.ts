@@ -5,7 +5,8 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.string('email', 255).unique().notNullable();
     table.string('name', 255);
-    table.string('password_hash', 255).notNullable();
+    table.string('password_hash', 255);
+    table.jsonb('settings').notNullable().defaultTo('{}');
     table.time('target_bedtime');
     table.timestamp('created_at').defaultTo(knex.fn.now());
     table.timestamp('updated_at').defaultTo(knex.fn.now());

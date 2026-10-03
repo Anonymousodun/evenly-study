@@ -30,16 +30,23 @@ A calm, science-informed app that helps students avoid burnout.
    ```
 
 3. **Start PostgreSQL**
+   - Make sure the `postgresql-x64-16` Windows service is running
+   - Create user `evenly_user` and database `evenly_study` (see `src/db/schema.sql`)
+
+4. **Create tables**
    ```bash
-   docker compose up -d
+   psql -U evenly_user -h localhost -d evenly_study -f src/db/schema.sql
+   psql -U evenly_user -h localhost -d evenly_study -f src/db/auth-schema.sql
    ```
 
-4. **Run migrations**
+5. **Start the API server**
    ```bash
-   npm run db:migrate
+   npm run server
    ```
+   The API runs on `http://localhost:3001` (health check: `/health`).
+   Copy `server/.env` values from the example in this README if needed.
 
-5. **Start the app**
+6. **Start the app**
    ```bash
    npx expo start
    ```
