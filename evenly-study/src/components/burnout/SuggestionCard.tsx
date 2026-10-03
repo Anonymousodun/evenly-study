@@ -6,30 +6,40 @@ import { Button } from '../common/Button';
 
 interface SuggestionCardProps {
   text: string;
-  onWhy: () => void;
+  whyText?: string;
+  onWhy?: () => void;
   onApprove?: () => void;
   onDismiss?: () => void;
 }
 
-export function SuggestionCard({ text, onWhy, onApprove, onDismiss }: SuggestionCardProps) {
+export function SuggestionCard({ text, whyText, onWhy, onApprove, onDismiss }: SuggestionCardProps) {
   const { theme } = useAppContext();
   const [showWhy, setShowWhy] = useState(false);
+
+  const toggleWhy = () => {
+    setShowWhy(!showWhy);
+    onWhy?.();
+  };
 
   return (
     <View style={[styles.card, { backgroundColor: theme.colors.surface }]}>
       <AppText variant="label" color="secondary">Suggestion</AppText>
       <AppText variant="body" style={styles.text}>{text}</AppText>
 
-      {showWhy && (
+      {showWhy && !!whyText && (
         <AppText variant="caption" color="secondary" style={styles.whyText}>
-          Research shows that when we feel overwhelmed, breaking work into smaller chunks reduces cortisol and improves focus.
+          {whyText}
         </AppText>
       )}
 
       <View style={styles.actions}>
-        <TouchableOpacity onPress={() => setShowWhy(!showWhy)}>
-          <AppText variant="label" color="secondary">Why?</AppText>
-        </TouchableOpacity>
+        {whyText ? (
+          <TouchableOpacity onPress={toggleWhy}>
+            <AppText variant="label" color="secondary">{showWhy ? 'Hide' : 'Why?'}</AppText>
+          </TouchableOpacity>
+        ) : (
+          <View />
+        )}
         {onApprove && (
           <View style={styles.approveActions}>
             <Button title="Approve" onPress={onApprove} variant="primary" style={styles.actionBtn} />

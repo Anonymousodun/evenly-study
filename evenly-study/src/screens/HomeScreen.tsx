@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useAppContext } from '../context/AppContext';
 import { Card } from '../components/common/Card';
@@ -11,6 +11,8 @@ import { useSuggestions } from '../hooks/useSuggestions';
 import { getBurnoutSuggestion } from '../utils/burnoutAlgorithm';
 import { checkSleepProtection } from '../utils/sleepProtection';
 import { generateWeeklySummary } from '../utils/weeklySummary';
+import { getScienceNote } from '../utils/science';
+import { checkDistress } from '../utils/distress';
 
 function greeting(): string {
   const hour = new Date().getHours();
@@ -25,6 +27,8 @@ export function HomeScreen({ navigation }: any) {
   const sleepCheck = checkSleepProtection(state);
   const summary = generateWeeklySummary(state);
   const activeSuggestion = suggestions[0] ?? null;
+  const distress = checkDistress(state);
+  const [distressDismissed, setDistressDismissed] = useState(false);
 
   const today = new Date().toISOString().split('T')[0];
   const checkedInToday = state.dailyCheckIns.some(c => c.date === today);
@@ -64,6 +68,17 @@ export function HomeScreen({ navigation }: any) {
         </Card>
       )}
 
+      {distress.triggered && !distressDismissed && (
+        <Card>
+          <AppText variant="label" color="secondary">💛 We're here for you</AppText>
+          <AppText variant="body" style={styles.bannerText}>{distress.message}</AppText>
+          <View style={styles.distressActions}>
+            <Button title="Show me" onPress={() => navigation.navigate('Support')} variant="secondary" />
+            <Button title="Later" onPress={() => setDistressDismissed(true)} variant="text" />
+          </View>
+        </Card>
+      )}
+
       {sleepCheck.exceeded && (
         <Card>
           <AppText variant="label" color="secondary">🌙 Sleep protection</AppText>
@@ -82,12 +97,15 @@ export function HomeScreen({ navigation }: any) {
       {activeSuggestion ? (
         <SuggestionCard
           text={activeSuggestion.text}
-          onWhy={() => {}}
+          whyText={getScienceNote(activeSuggestion.type)}
           onApprove={() => approve(activeSuggestion.id)}
           onDismiss={() => dismiss(activeSuggestion.id)}
         />
       ) : (
-        <SuggestionCard text={getBurnoutSuggestion(state.burnoutLevel)} onWhy={() => {}} />
+        <SuggestionCard
+          text={getBurnoutSuggestion(state.burnoutLevel)}
+          whyText={getScienceNote('balanced-week')}
+        />
       )}
 
       <View style={{ height: 100 }} />
@@ -130,5 +148,11 @@ const styles = StyleSheet.create({
   bannerText: {
     marginTop: 8,
     lineHeight: 24,
+  },
+  distressActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 16,
+    alignItems: 'center',
   },
 });
