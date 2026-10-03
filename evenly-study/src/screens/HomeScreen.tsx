@@ -11,6 +11,7 @@ import { useSuggestions } from '../hooks/useSuggestions';
 import { getBurnoutSuggestion } from '../utils/burnoutAlgorithm';
 import { checkSleepProtection } from '../utils/sleepProtection';
 import { generateWeeklySummary } from '../utils/weeklySummary';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getScienceNote } from '../utils/science';
 import { checkDistress } from '../utils/distress';
 
@@ -41,10 +42,10 @@ export function HomeScreen({ navigation }: any) {
       </View>
 
       <TouchableOpacity
-        style={styles.supportBtn}
+        style={[styles.supportBtn, { backgroundColor: theme.colors.danger }]}
         onPress={() => navigation.navigate('Support')}
       >
-        <AppText style={{ fontSize: 18 }}>🆘</AppText>
+        <MaterialCommunityIcons name="lifebuoy" size={22} color="#FFFFFF" />
       </TouchableOpacity>
 
       <View style={styles.indicatorContainer}>
@@ -70,7 +71,7 @@ export function HomeScreen({ navigation }: any) {
 
       {distress.triggered && !distressDismissed && (
         <Card>
-          <AppText variant="label" color="secondary">💛 We're here for you</AppText>
+          <AppText variant="label" color="secondary">We're here for you</AppText>
           <AppText variant="body" style={styles.bannerText}>{distress.message}</AppText>
           <View style={styles.distressActions}>
             <Button title="Show me" onPress={() => navigation.navigate('Support')} variant="secondary" />

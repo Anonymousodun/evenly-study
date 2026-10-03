@@ -1,22 +1,28 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../context/AppContext';
-import AppText from '../common/Text';
 
 interface CheckInSliderProps {
   value: number | null;
   onSelect: (value: number) => void;
-  emojis?: string[];
+  icons?: string[];
 }
 
-const DEFAULT_EMOJIS = ['😞', '😕', '😐', '🙂', '😊'];
+const DEFAULT_ICONS = [
+  'emoticon-cry-outline',
+  'emoticon-sad-outline',
+  'emoticon-neutral-outline',
+  'emoticon-happy-outline',
+  'emoticon-excited-outline',
+];
 
-export function CheckInSlider({ value, onSelect, emojis = DEFAULT_EMOJIS }: CheckInSliderProps) {
+export function CheckInSlider({ value, onSelect, icons = DEFAULT_ICONS }: CheckInSliderProps) {
   const theme = useTheme();
 
   return (
     <View style={styles.container}>
-      {emojis.map((emoji, index) => {
+      {icons.map((icon, index) => {
         const score = index + 1;
         const isSelected = value === score;
 
@@ -30,7 +36,11 @@ export function CheckInSlider({ value, onSelect, emojis = DEFAULT_EMOJIS }: Chec
             ]}
             onPress={() => onSelect(score)}
           >
-            <AppText style={styles.emoji}>{emoji}</AppText>
+            <MaterialCommunityIcons
+              name={icon as any}
+              size={28}
+              color={isSelected ? '#FFFFFF' : theme.colors.textSecondary}
+            />
           </TouchableOpacity>
         );
       })}
@@ -52,8 +62,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
-  },
-  emoji: {
-    fontSize: 24,
   },
 });

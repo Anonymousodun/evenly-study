@@ -1,11 +1,18 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppContext } from '../../context/AppContext';
 import AppText from '../common/Text';
 
 interface IndicatorBadgeProps {
   level: 'green' | 'yellow' | 'red';
 }
+
+const LEVEL_ICON = {
+  green: 'sprout',
+  yellow: 'weather-cloudy',
+  red: 'umbrella',
+} as const;
 
 export function IndicatorBadge({ level }: IndicatorBadgeProps) {
   const { theme } = useAppContext();
@@ -15,12 +22,11 @@ export function IndicatorBadge({ level }: IndicatorBadgeProps) {
     level === 'yellow' ? theme.colors.indicatorYellow :
     theme.colors.indicatorRed;
 
-  const emoji = level === 'green' ? '🌿' : level === 'yellow' ? '🌙' : '🍂';
   const label = level === 'green' ? 'Healthy zone' : level === 'yellow' ? 'Load building' : 'High risk';
 
   return (
     <View style={[styles.circle, { backgroundColor: bgColor }]}>
-      <AppText style={styles.emoji}>{emoji}</AppText>
+      <MaterialCommunityIcons name={LEVEL_ICON[level]} size={44} color="#FFFFFF" />
       <AppText style={styles.label}>{label}</AppText>
     </View>
   );
@@ -39,15 +45,12 @@ const styles = StyleSheet.create({
     shadowRadius: 12,
     elevation: 4,
   },
-  emoji: {
-    fontSize: 40,
-    marginBottom: 4,
-  },
   label: {
     color: '#FFFFFF',
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
     paddingHorizontal: 16,
+    marginTop: 4,
   },
 });

@@ -36,7 +36,7 @@ export function TasksScreen({ navigation }: any) {
 
       {sortedTasks.length === 0 ? (
         <EmptyState
-          icon="📋"
+          icon="clipboard-text-outline"
           title="No tasks yet"
           subtitle="Add your first task to get started"
         />

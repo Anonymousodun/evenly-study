@@ -7,7 +7,7 @@ import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import { generateId } from '../utils/id';
 
-export function AuthScreen({ navigation }: any) {
+export function AuthScreen() {
   const { dispatch, theme } = useAppContext();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -15,21 +15,22 @@ export function AuthScreen({ navigation }: any) {
   const [name, setName] = useState('');
 
   const handleSubmit = async () => {
+    if (!email.trim() || !password) return;
+    // New accounts go through setup; returning users land on their dashboard.
+    if (!isLogin) {
+      dispatch({ type: 'UPDATE_SETTINGS', payload: { setupComplete: false } });
+    }
     dispatch({
       type: 'SET_USER',
       payload: {
         id: generateId(),
-        email,
-        name: name || null,
+        email: email.trim(),
+        name: name.trim() || null,
         password_hash: '',
         target_bedtime: '23:00',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       },
-    });
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'MainTabs' }],
     });
   };
 

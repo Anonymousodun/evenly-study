@@ -1,10 +1,10 @@
 import React from 'react';
 import { TouchableOpacity, StyleSheet } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppContext } from '../../context/AppContext';
-import AppText from '../common/Text';
 
 export function ThemeToggle() {
-  const { isDark, toggleTheme } = useAppContext();
+  const { theme, isDark, toggleTheme } = useAppContext();
 
   return (
     <TouchableOpacity
@@ -12,7 +12,11 @@ export function ThemeToggle() {
       onPress={toggleTheme}
       activeOpacity={0.7}
     >
-      <AppText variant="bodySmall">{isDark ? '☀️' : '🌙'}</AppText>
+      <MaterialCommunityIcons
+        name={isDark ? 'weather-sunny' : 'weather-night'}
+        size={22}
+        color={theme.colors.textSecondary}
+      />
     </TouchableOpacity>
   );
 }

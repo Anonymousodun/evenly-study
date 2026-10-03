@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Linking } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../context/AppContext';
 import AppText from '../common/Text';
 
@@ -16,10 +17,6 @@ export function SupportCard({ icon, label, contact, onPress }: SupportCardProps)
   const handlePress = () => {
     if (onPress) {
       onPress();
-    } else if (contact.startsWith('tel:')) {
-      Linking.openURL(contact);
-    } else if (contact.startsWith('sms:')) {
-      Linking.openURL(contact);
     }
   };
 
@@ -31,7 +28,7 @@ export function SupportCard({ icon, label, contact, onPress }: SupportCardProps)
     >
       <View style={styles.row}>
         <View style={[styles.iconContainer, { backgroundColor: theme.colors.bg }]}>
-          <AppText style={styles.icon}>{icon}</AppText>
+          <MaterialCommunityIcons name={icon as any} size={26} color={theme.colors.primary} />
         </View>
         <View style={styles.info}>
           <AppText variant="body">{label}</AppText>
@@ -64,9 +61,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 16,
-  },
-  icon: {
-    fontSize: 24,
   },
   info: {
     flex: 1,

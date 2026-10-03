@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
 import { Card } from '../components/common/Card';
@@ -18,7 +19,7 @@ interface Resource {
 
 const resourcesByRegion = supportResources as Record<string, Resource[]>;
 
-export function SupportScreen() {
+export function SupportScreen({ navigation }: any) {
   const { state, theme } = useAppContext();
   const region = state.settings.region || 'US';
   const helplines = resourcesByRegion[region] ?? resourcesByRegion['US'] ?? [];
@@ -29,6 +30,21 @@ export function SupportScreen() {
         <AppText variant="h1">Need to talk?</AppText>
         <AppText variant="bodySmall" color="secondary">You're not alone. Here are people who can help.</AppText>
       </View>
+
+      <TouchableOpacity onPress={() => navigation.navigate('AISupport')} activeOpacity={0.8}>
+        <Card>
+          <View style={styles.aiRow}>
+            <View style={[styles.aiAvatar, { backgroundColor: theme.colors.primary }]}>
+              <MaterialCommunityIcons name="robot-outline" size={24} color="#FFFFFF" />
+            </View>
+            <View style={styles.aiInfo}>
+              <AppText variant="body">Speak to our AI agent</AppText>
+              <AppText variant="caption" color="secondary">Quick study advice, any time — not therapy</AppText>
+            </View>
+            <MaterialCommunityIcons name="chevron-right" size={24} color={theme.colors.textSecondary} />
+          </View>
+        </Card>
+      </TouchableOpacity>
 
       <Card>
         <AppText variant="label" color="secondary">Campus Counselor</AppText>
@@ -88,5 +104,20 @@ const styles = StyleSheet.create({
   disclaimer: {
     textAlign: 'center',
     lineHeight: 20,
+  },
+  aiRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  aiAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  aiInfo: {
+    flex: 1,
   },
 });

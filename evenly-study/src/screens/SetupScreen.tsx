@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
 import { Card } from '../components/common/Card';
@@ -80,7 +81,7 @@ export function SetupScreen({ navigation }: any) {
   };
 
   const finishSetup = () => {
-    dispatch({ type: 'UPDATE_SETTINGS', payload: { targetBedtime: bedtime, studyWindows: windows } });
+    dispatch({ type: 'UPDATE_SETTINGS', payload: { targetBedtime: bedtime, studyWindows: windows, setupComplete: true } });
     quickTasks.forEach(t => {
       dispatch({
         type: 'ADD_TASK',
@@ -109,7 +110,7 @@ export function SetupScreen({ navigation }: any) {
       {step === 0 && (
         <View>
           <View style={styles.header}>
-            <AppText variant="display">👋</AppText>
+            <MaterialCommunityIcons name="hand-wave-outline" size={48} color={theme.colors.primary} />
             <AppText variant="h1" style={styles.title}>Welcome to Evenly Study</AppText>
             <AppText variant="bodySmall" color="secondary" style={styles.subtitle}>
               Keep going without falling apart

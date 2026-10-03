@@ -30,7 +30,7 @@ export function CheckInScreen({ navigation }: any) {
         created_at: new Date().toISOString(),
       },
     });
-    setToast('Checked in ✓');
+    setToast('Checked in');
     setTimeout(() => navigation.navigate('Home'), 800);
   };
 
@@ -49,7 +49,7 @@ export function CheckInScreen({ navigation }: any) {
       },
     });
     const message = getReinforcementMessage(state);
-    setToast(message || 'Sleep logged 🌙');
+    setToast(message || 'Sleep logged');
   };
 
   return (

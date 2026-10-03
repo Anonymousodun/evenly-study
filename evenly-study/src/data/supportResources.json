@@ -6,7 +6,7 @@
       "label": "988 Suicide & Crisis Lifeline",
       "contact": "Call or text 988",
       "region": "US",
-      "icon": "📞"
+      "icon": "phone-outline"
     },
     {
       "id": "us-2",
@@ -14,7 +14,7 @@
       "label": "Crisis Text Line",
       "contact": "Text HOME to 741741",
       "region": "US",
-      "icon": "💬"
+      "icon": "message-text-outline"
     },
     {
       "id": "us-3",
@@ -22,7 +22,7 @@
       "label": "SAMHSA Helpline",
       "contact": "1-800-662-4357",
       "region": "US",
-      "icon": "📞"
+      "icon": "phone-outline"
     }
   ],
   "UK": [
@@ -32,7 +32,7 @@
       "label": "Samaritans",
       "contact": "116 123",
       "region": "UK",
-      "icon": "📞"
+      "icon": "phone-outline"
     },
     {
       "id": "uk-2",
@@ -40,7 +40,7 @@
       "label": "Shout Crisis Text Line",
       "contact": "Text SHOUT to 85258",
       "region": "UK",
-      "icon": "💬"
+      "icon": "message-text-outline"
     }
   ],
   "CA": [
@@ -50,7 +50,7 @@
       "label": "Talk Suicide Canada",
       "contact": "1-833-456-4566",
       "region": "CA",
-      "icon": "📞"
+      "icon": "phone-outline"
     },
     {
       "id": "ca-2",
@@ -58,7 +58,7 @@
       "label": "Crisis Text Line",
       "contact": "Text HOME to 686868",
       "region": "CA",
-      "icon": "💬"
+      "icon": "message-text-outline"
     }
   ],
   "AU": [
@@ -68,7 +68,7 @@
       "label": "Lifeline Australia",
       "contact": "13 11 14",
       "region": "AU",
-      "icon": "📞"
+      "icon": "phone-outline"
     },
     {
       "id": "au-2",
@@ -76,7 +76,7 @@
       "label": "Beyond Blue",
       "contact": "1300 22 4636",
       "region": "AU",
-      "icon": "📞"
+      "icon": "phone-outline"
     }
   ]
 }

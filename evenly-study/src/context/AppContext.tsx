@@ -10,6 +10,7 @@ const defaultSettings: Settings = {
   focusLength: 25,
   windDownReminder: true,
   region: 'US',
+  setupComplete: false,
 };
 
 const initialState: AppState = {

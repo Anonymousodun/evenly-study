@@ -18,10 +18,10 @@ interface BreakDef {
 }
 
 const BREAK_OPTIONS: BreakDef[] = [
-  { id: '1', icon: '👁️', title: 'Eyes-off-screen reset', minutes: 2, description: 'Look at something far away' },
-  { id: '2', icon: '🌬️', title: 'Breathing exercise', minutes: 3, description: '4-7-8 breathing pattern' },
-  { id: '3', icon: '🧘', title: 'Stretch sequence', minutes: 5, description: 'Neck, shoulders, back' },
-  { id: '4', icon: '🚶', title: 'Quick walk', minutes: 10, description: 'Around the block' },
+  { id: '1', icon: 'eye-off-outline', title: 'Eyes-off-screen reset', minutes: 2, description: 'Look at something far away' },
+  { id: '2', icon: 'weather-windy', title: 'Breathing exercise', minutes: 3, description: '4-7-8 breathing pattern' },
+  { id: '3', icon: 'yoga', title: 'Stretch sequence', minutes: 5, description: 'Neck, shoulders, back' },
+  { id: '4', icon: 'walk', title: 'Quick walk', minutes: 10, description: 'Around the block' },
 ];
 
 function formatTime(totalSeconds: number): string {
@@ -55,11 +55,11 @@ export function BreaksScreen({ navigation }: any) {
     Vibration.vibrate(500);
     if (mode === 'focus') {
       setMode('idle');
-      setToast('Focus session done — pick a break 🌿');
+      setToast('Focus session done — pick a break');
     } else {
       setMode('idle');
       setSelectedBreak(null);
-      setToast('Nice — rest is part of the work 🌿');
+      setToast('Nice — rest is part of the work');
     }
   };
 

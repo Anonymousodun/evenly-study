@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from '../../context/AppContext';
 import AppText from './Text';
 
@@ -15,7 +16,7 @@ export function EmptyState({ icon, title, subtitle }: EmptyStateProps) {
   return (
     <View style={styles.container}>
       <View style={[styles.iconContainer, { backgroundColor: theme.colors.surface }]}>
-        <AppText variant="indicator">{icon}</AppText>
+        <MaterialCommunityIcons name={icon as any} size={40} color={theme.colors.primary} />
       </View>
       <AppText variant="h2" style={styles.title}>{title}</AppText>
       {subtitle && <AppText variant="bodySmall" color="secondary" style={styles.subtitle}>{subtitle}</AppText>}

@@ -67,6 +67,7 @@ export interface Settings {
   focusLength: number;
   windDownReminder: boolean;
   region: string;
+  setupComplete: boolean;
 }
 
 export interface Suggestion {
