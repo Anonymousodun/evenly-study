@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Evenly Study — Design Mockup</title>
+<title>Evenly Study — Design Mockup (v2)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7/css/materialdesignicons.min.css">
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body {
@@ -16,760 +17,420 @@
     min-height: 100vh;
     flex-wrap: wrap;
   }
-  .phone {
-    width: 375px;
-    height: 812px;
-    border-radius: 40px;
-    border: 8px solid #333;
-    overflow: hidden;
-    position: relative;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-  }
-  .screen {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    padding: 60px 24px 24px;
-    position: relative;
-  }
+  .phone { width: 375px; height: 812px; border-radius: 40px; border: 8px solid #333; overflow: hidden; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  .screen { width: 100%; height: 100%; display: flex; flex-direction: column; padding: 60px 24px 24px; position: relative; overflow-y: auto; }
   .light .screen { background: #F7F5F0; }
   .dark .screen { background: #1A1A1A; }
-
-  .status-bar {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 44px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 600;
-  }
+  .status-bar { position: absolute; top: 0; left: 0; right: 0; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
   .light .status-bar { color: #2D2D2D; }
   .dark .status-bar { color: #F0F0F0; }
-
-  .notch {
-    position: absolute;
-    top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120px;
-    height: 28px;
-    background: #000;
-    border-radius: 14px;
-    z-index: 10;
-  }
-
-  .header {
-    text-align: center;
-    margin-bottom: 24px;
-  }
-  .header h1 {
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 4px;
-  }
+  .notch { position: absolute; top: 12px; left: 50%; transform: translateX(-50%); width: 120px; height: 28px; background: #000; border-radius: 14px; z-index: 10; }
+  .header { text-align: center; margin-bottom: 24px; }
+  .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 4px; }
   .light .header h1 { color: #2D2D2D; }
   .dark .header h1 { color: #F0F0F0; }
-  .header p {
-    font-size: 14px;
-  }
+  .header p { font-size: 14px; }
   .light .header p { color: #6B6B6B; }
   .dark .header p { color: #9A9A9A; }
+  .mdi { line-height: 1; }
 
-  .indicator-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 20px 0 32px;
-  }
-  .indicator-circle {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-  }
+  .indicator-container { display: flex; flex-direction: column; align-items: center; margin: 20px 0 24px; }
+  .indicator-circle { width: 140px; height: 140px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
   .indicator-circle.green { background: #7BAF7B; }
   .indicator-circle.yellow { background: #C4A842; }
   .indicator-circle.red { background: #C47B4A; }
-  .indicator-emoji { font-size: 40px; margin-bottom: 4px; }
-  .indicator-label {
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    text-align: center;
-    padding: 0 16px;
-  }
-  .indicator-text {
-    font-size: 20px;
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 8px;
-  }
+  .indicator-circle .mdi { font-size: 44px; color: #fff; }
+  .indicator-label { color: #fff; font-size: 14px; font-weight: 600; text-align: center; padding: 0 16px; margin-top: 4px; }
+  .indicator-text { font-size: 20px; font-weight: 600; text-align: center; margin-bottom: 8px; }
   .light .indicator-text { color: #2D2D2D; }
   .dark .indicator-text { color: #F0F0F0; }
-  .indicator-subtext {
-    font-size: 14px;
-    text-align: center;
-  }
+  .indicator-subtext { font-size: 14px; text-align: center; }
   .light .indicator-subtext { color: #6B6B6B; }
   .dark .indicator-subtext { color: #9A9A9A; }
 
-  .card {
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 16px;
-  }
+  .card { border-radius: 12px; padding: 20px; margin-bottom: 16px; }
   .light .card { background: #FFFFFF; }
   .dark .card { background: #2A2A2A; }
-  .card-title {
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 8px;
-  }
+  .card-title { font-size: 14px; font-weight: 500; margin-bottom: 8px; }
   .light .card-title { color: #6B6B6B; }
   .dark .card-title { color: #9A9A9A; }
-  .card-content {
-    font-size: 16px;
-    line-height: 1.5;
-  }
+  .card-content { font-size: 16px; line-height: 1.5; }
   .light .card-content { color: #2D2D2D; }
   .dark .card-content { color: #F0F0F0; }
 
-  .btn {
-    display: block;
-    width: 100%;
-    padding: 16px;
-    border-radius: 12px;
-    border: none;
-    font-size: 16px;
-    font-weight: 600;
-    cursor: pointer;
-    text-align: center;
-    margin-bottom: 12px;
-  }
+  .btn { display: block; width: 100%; padding: 16px; border-radius: 12px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; text-align: center; margin-bottom: 12px; }
   .btn-primary { background: #6B8F71; color: #fff; }
-  .btn-secondary {
-    background: transparent;
-    border: 2px solid #6B8F71;
-    color: #6B8F71;
-  }
-  .btn-text {
-    background: transparent;
-    color: #6B8F71;
-    font-weight: 500;
-  }
+  .btn-secondary { background: transparent; border: 2px solid #6B8F71; color: #6B8F71; }
+  .btn-text { background: transparent; color: #6B8F71; font-weight: 500; }
+  .btn-row { display: flex; gap: 8px; margin-top: 12px; }
+  .btn-row .btn { margin-bottom: 0; }
 
-  .tab-bar {
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    padding-bottom: 20px;
-  }
+  .tab-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; display: flex; align-items: center; justify-content: space-around; padding-bottom: 20px; }
   .light .tab-bar { background: #FFFFFF; border-top: 1px solid #E0DDD8; }
   .dark .tab-bar { background: #2A2A2A; border-top: 1px solid #3A3A3A; }
-  .tab {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    font-size: 10px;
-  }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; }
   .light .tab { color: #6B6B6B; }
   .dark .tab { color: #9A9A9A; }
   .tab.active { color: #6B8F71; }
-  .tab-icon { font-size: 20px; }
+  .tab .mdi { font-size: 22px; }
 
-  .task-item {
-    display: flex;
-    align-items: center;
-    padding: 16px;
-    border-radius: 12px;
-    margin-bottom: 8px;
-  }
+  .task-item { display: flex; align-items: center; padding: 16px; border-radius: 12px; margin-bottom: 8px; }
   .light .task-item { background: #FFFFFF; }
   .dark .task-item { background: #2A2A2A; }
-  .task-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    margin-right: 12px;
-    flex-shrink: 0;
-  }
+  .task-dot { width: 12px; height: 12px; border-radius: 50%; margin-right: 12px; flex-shrink: 0; }
   .task-dot.light { background: #7BAF7B; }
   .task-dot.medium { background: #C4A842; }
   .task-dot.heavy { background: #C47B4A; }
   .task-info { flex: 1; }
-  .task-title {
-    font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 2px;
-  }
+  .task-title { font-size: 16px; font-weight: 500; margin-bottom: 2px; }
   .light .task-title { color: #2D2D2D; }
   .dark .task-title { color: #F0F0F0; }
-  .task-meta {
-    font-size: 12px;
-  }
+  .task-meta { font-size: 12px; }
   .light .task-meta { color: #6B6B6B; }
   .dark .task-meta { color: #9A9A9A; }
+  .check-btn { color: #6B8F71; font-size: 20px; }
 
-  .checkin-circles {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    margin: 32px 0;
-  }
-  .checkin-circle {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    cursor: pointer;
-    border: 2px solid transparent;
-  }
+  .checkin-circles { display: flex; justify-content: space-between; margin: 24px 0; }
+  .checkin-circle { width: 56px; height: 56px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid transparent; }
   .light .checkin-circle { background: #FFFFFF; }
   .dark .checkin-circle { background: #2A2A2A; }
-  .checkin-circle.selected {
-    border-color: #6B8F71;
-    background: #6B8F71;
-  }
-  .checkin-circle.selected span { filter: grayscale(1) brightness(2); }
+  .checkin-circle .mdi { font-size: 28px; color: #9A9A9A; }
+  .checkin-circle.selected { background: #6B8F71; border-color: #6B8F71; }
+  .checkin-circle.selected .mdi { color: #fff; }
 
-  .break-option {
-    display: flex;
-    align-items: center;
-    padding: 16px;
-    border-radius: 12px;
-    margin-bottom: 12px;
-  }
+  .break-option { display: flex; align-items: center; padding: 16px; border-radius: 12px; margin-bottom: 12px; }
   .light .break-option { background: #FFFFFF; }
   .dark .break-option { background: #2A2A2A; }
-  .break-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    margin-right: 16px;
-    background: #F0EDE8;
-  }
+  .break-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-right: 16px; background: #F0EDE8; }
+  .break-icon .mdi { font-size: 26px; color: #6B8F71; }
   .break-info { flex: 1; }
-  .break-title {
-    font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 2px;
-  }
+  .break-title { font-size: 16px; font-weight: 500; margin-bottom: 2px; }
   .light .break-title { color: #2D2D2D; }
   .dark .break-title { color: #F0F0F0; }
-  .break-duration {
-    font-size: 12px;
-  }
+  .break-duration { font-size: 12px; }
   .light .break-duration { color: #6B6B6B; }
   .dark .break-duration { color: #9A9A9A; }
 
-  .trend-dots {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin: 16px 0;
-  }
-  .trend-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-  }
+  .trend-dots { display: flex; justify-content: space-between; margin: 16px 0 4px; }
+  .trend-dot { width: 12px; height: 12px; border-radius: 50%; }
   .trend-dot.green { background: #7BAF7B; }
   .trend-dot.yellow { background: #C4A842; }
   .trend-dot.red { background: #C47B4A; }
 
-  .setup-progress {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 32px;
-  }
-  .progress-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-  }
-  .light .progress-dot { background: #E0DDD8; }
-  .dark .progress-dot { background: #3A3A3A; }
+  .setup-progress { display: flex; justify-content: center; gap: 8px; margin-bottom: 32px; }
+  .progress-dot { width: 8px; height: 8px; border-radius: 50%; background: #E0DDD8; }
   .progress-dot.active { background: #6B8F71; }
 
-  .time-picker {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    margin: 24px 0;
-  }
-  .time-option {
-    padding: 16px 24px;
-    border-radius: 12px;
-    text-align: center;
-    cursor: pointer;
-  }
+  .time-picker { display: flex; justify-content: center; gap: 12px; margin: 24px 0; }
+  .time-option { padding: 16px 20px; border-radius: 12px; text-align: center; }
   .light .time-option { background: #FFFFFF; }
   .dark .time-option { background: #2A2A2A; }
-  .time-option.selected {
-    background: #6B8F71;
-    color: #fff;
-  }
-  .time-value {
-    font-size: 24px;
-    font-weight: 600;
-  }
+  .time-option.selected { background: #6B8F71; color: #fff; }
+  .time-value { font-size: 22px; font-weight: 600; }
   .light .time-value { color: #2D2D2D; }
   .dark .time-value { color: #F0F0F0; }
   .time-option.selected .time-value { color: #fff; }
 
-  .template-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin: 24px 0;
-  }
-  .template-card {
-    padding: 20px;
-    border-radius: 12px;
-    text-align: center;
-    cursor: pointer;
-  }
+  .template-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0 24px; }
+  .template-card { padding: 20px; border-radius: 12px; text-align: center; }
   .light .template-card { background: #FFFFFF; }
   .dark .template-card { background: #2A2A2A; }
-  .template-icon { font-size: 32px; margin-bottom: 8px; }
-  .template-label {
-    font-size: 14px;
-    font-weight: 500;
-  }
+  .template-card .mdi { font-size: 32px; color: #6B8F71; }
+  .template-label { font-size: 14px; font-weight: 500; margin-top: 8px; }
   .light .template-label { color: #2D2D2D; }
   .dark .template-label { color: #F0F0F0; }
 
-  .nav-title {
-    font-size: 18px;
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 24px;
-  }
+  .nav-title { font-size: 18px; font-weight: 600; text-align: center; margin-bottom: 24px; }
   .light .nav-title { color: #2D2D2D; }
   .dark .nav-title { color: #F0F0F0; }
 
-  .support-btn {
-    position: absolute;
-    top: 56px;
-    right: 24px;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: #C47B4A;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    border: none;
-    cursor: pointer;
-  }
+  .support-btn { position: absolute; top: 56px; right: 24px; width: 40px; height: 40px; border-radius: 50%; background: #B87333; color: #fff; display: flex; align-items: center; justify-content: center; border: none; }
+  .support-btn .mdi { font-size: 22px; color: #fff; }
 
-  .screen-label {
-    position: absolute;
-    bottom: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #999;
-    font-size: 14px;
-    white-space: nowrap;
-  }
-  .phone-wrapper {
-    position: relative;
-    padding-bottom: 40px;
-  }
+  .input { border: 1px solid #E0DDD8; border-radius: 12px; padding: 16px; font-size: 16px; margin-bottom: 16px; background: #FFFFFF; color: #6B6B6B; }
+  .switch-row { display: flex; justify-content: space-between; align-items: center; font-size: 14px; color: #6B6B6B; margin-top: 16px; }
+  .switch-row a { color: #6B8F71; text-decoration: none; font-weight: 500; }
+
+  .bubble { max-width: 85%; padding: 14px; border-radius: 16px; margin-bottom: 8px; font-size: 14px; line-height: 1.5; }
+  .bubble.ai { background: #FFFFFF; color: #2D2D2D; align-self: flex-start; border-bottom-left-radius: 4px; }
+  .bubble.user { background: #6B8F71; color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+  .chat { display: flex; flex-direction: column; flex: 1; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+  .chip { padding: 8px 12px; border-radius: 9999px; border: 1px solid #E0DDD8; background: #fff; font-size: 12px; color: #2D2D2D; }
+  .composer { display: flex; gap: 8px; align-items: center; margin: 8px 0 12px; }
+  .composer .input { flex: 1; margin-bottom: 0; }
+  .send-btn { width: 48px; height: 48px; border-radius: 50%; background: #6B8F71; border: none; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .send-btn .mdi { font-size: 20px; color: #fff; }
+  .ai-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+  .ai-avatar { width: 48px; height: 48px; border-radius: 50%; background: #6B8F71; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ai-avatar .mdi { font-size: 24px; color: #fff; }
+  .ai-title { font-size: 24px; font-weight: 600; color: #2D2D2D; }
+  .ai-sub { font-size: 12px; color: #6B6B6B; }
+  .ai-entry { display: flex; align-items: center; gap: 12px; }
+  .ai-entry .ai-avatar { width: 48px; height: 48px; }
+  .ai-entry-info { flex: 1; }
+  .ai-entry-title { font-size: 16px; font-weight: 500; color: #2D2D2D; }
+  .ai-entry-sub { font-size: 12px; color: #6B6B6B; }
+  .chev { font-size: 24px; color: #9A9A9A; }
+
+  .screen-label { position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); color: #999; font-size: 14px; white-space: nowrap; }
+  .phone-wrapper { position: relative; padding-bottom: 40px; }
 </style>
 </head>
 <body>
 
-<!-- Screen 1: Home (Green) -->
+<!-- 1: Auth -->
 <div class="phone-wrapper">
 <div class="phone light">
   <div class="notch"></div>
   <div class="screen">
     <div class="status-bar">9:41</div>
-    <button class="support-btn">🆘</button>
-    <div class="header">
-      <h1>Good morning</h1>
-      <p>Let's check in with yourself</p>
-    </div>
+    <div class="header"><h1>Welcome back</h1><p>Sign in to continue</p></div>
+    <div class="input">your@email.com</div>
+    <div class="input">••••••••</div>
+    <button class="btn btn-primary">Sign In</button>
+    <div class="switch-row"><span>Don't have an account?</span><a>Sign up</a></div>
+  </div>
+</div>
+<div class="screen-label">Auth — Sign in first</div>
+</div>
+
+<!-- 2: Setup -->
+<div class="phone-wrapper">
+<div class="phone light">
+  <div class="notch"></div>
+  <div class="screen">
+    <div class="status-bar">9:41</div>
+    <div class="setup-progress"><div class="progress-dot active"></div><div class="progress-dot"></div><div class="progress-dot"></div><div class="progress-dot"></div><div class="progress-dot"></div></div>
+    <div class="header"><h1>Welcome to Evenly Study</h1><p>Keep going without falling apart</p></div>
+    <div class="card"><div class="card-content">One calm indicator for your burnout risk<br>Well-timed breaks that fit your day<br>Protected sleep, every night</div></div>
+    <div style="flex:1"></div>
+    <button class="btn btn-primary">Let's get started</button>
+  </div>
+</div>
+<div class="screen-label">Setup — Welcome</div>
+</div>
+
+<!-- 3: Home green (personal dashboard) -->
+<div class="phone-wrapper">
+<div class="phone light">
+  <div class="notch"></div>
+  <div class="screen">
+    <div class="status-bar">9:41</div>
+    <button class="support-btn"><i class="mdi mdi-lifebuoy"></i></button>
+    <div class="header"><h1>Good morning</h1><p>Let's check in with yourself</p></div>
     <div class="indicator-container">
-      <div class="indicator-circle green">
-        <span class="indicator-emoji">🌿</span>
-        <span class="indicator-label">Healthy zone</span>
-      </div>
+      <div class="indicator-circle green"><i class="mdi mdi-sprout"></i><span class="indicator-label">Healthy zone</span></div>
       <div class="indicator-text">You're in a healthy zone</div>
       <div class="indicator-subtext">Load and rest are balanced</div>
     </div>
-    <div class="card">
-      <div class="card-title">This week</div>
-      <div class="trend-dots">
-        <div class="trend-dot green"></div>
-        <div class="trend-dot green"></div>
-        <div class="trend-dot yellow"></div>
-        <div class="trend-dot green"></div>
-        <div class="trend-dot green"></div>
-        <div class="trend-dot yellow"></div>
-        <div class="trend-dot green"></div>
-      </div>
+    <div class="card"><div class="card-title">This week — tap for details</div>
+      <div class="trend-dots"><div class="trend-dot green"></div><div class="trend-dot green"></div><div class="trend-dot yellow"></div><div class="trend-dot green"></div><div class="trend-dot green"></div><div class="trend-dot yellow"></div><div class="trend-dot green"></div></div>
     </div>
-    <div class="card">
-      <div class="card-title">Suggestion</div>
-      <div class="card-content">You're doing great! Keep taking breaks between study sessions.</div>
-    </div>
+    <div class="card"><div class="card-title">Suggestion</div><div class="card-content">You're doing great! Keep taking breaks between study sessions.</div></div>
     <div class="tab-bar">
-      <div class="tab active"><span class="tab-icon">🏠</span>Home</div>
-      <div class="tab"><span class="tab-icon">📋</span>Tasks</div>
-      <div class="tab"><span class="tab-icon">💤</span>Check-in</div>
-      <div class="tab"><span class="tab-icon">⚙️</span>Settings</div>
+      <div class="tab active"><i class="mdi mdi-home-outline"></i>Alex's Day</div>
+      <div class="tab"><i class="mdi mdi-clipboard-list-outline"></i>Tasks</div>
+      <div class="tab"><i class="mdi mdi-sleep"></i>Check-in</div>
+      <div class="tab"><i class="mdi mdi-cog-outline"></i>Settings</div>
     </div>
   </div>
 </div>
-<div class="screen-label">Home — Green</div>
+<div class="screen-label">Home — Personal dashboard (Green)</div>
 </div>
 
-<!-- Screen 2: Home (Red) -->
+<!-- 4: Home red -->
 <div class="phone-wrapper">
 <div class="phone light">
   <div class="notch"></div>
   <div class="screen">
     <div class="status-bar">9:41</div>
-    <button class="support-btn">🆘</button>
-    <div class="header">
-      <h1>Good morning</h1>
-      <p>Let's check in with yourself</p>
-    </div>
+    <button class="support-btn"><i class="mdi mdi-lifebuoy"></i></button>
+    <div class="header"><h1>Good morning</h1><p>Let's check in with yourself</p></div>
     <div class="indicator-container">
-      <div class="indicator-circle red">
-        <span class="indicator-emoji">🍂</span>
-        <span class="indicator-label">High risk</span>
-      </div>
+      <div class="indicator-circle red"><i class="mdi mdi-umbrella"></i><span class="indicator-label">High risk</span></div>
       <div class="indicator-text">Time to ease off</div>
       <div class="indicator-subtext">Heavy load plus poor sleep</div>
     </div>
-    <div class="card">
-      <div class="card-title">This week</div>
-      <div class="trend-dots">
-        <div class="trend-dot green"></div>
-        <div class="trend-dot yellow"></div>
-        <div class="trend-dot yellow"></div>
-        <div class="trend-dot red"></div>
-        <div class="trend-dot red"></div>
-        <div class="trend-dot yellow"></div>
-        <div class="trend-dot red"></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">Suggestion</div>
-      <div class="card-content">Consider moving "Math Essay" to tomorrow. Your sleep has been short this week.</div>
+    <div class="card"><div class="card-title">Suggestion</div><div class="card-content">Consider moving "Math Essay" to tomorrow. Your sleep has been short this week.</div>
+      <div class="btn-row"><button class="btn btn-primary">Approve</button><button class="btn btn-text">Ignore</button></div>
     </div>
     <div class="tab-bar">
-      <div class="tab active"><span class="tab-icon">🏠</span>Home</div>
-      <div class="tab"><span class="tab-icon">📋</span>Tasks</div>
-      <div class="tab"><span class="tab-icon">💤</span>Check-in</div>
-      <div class="tab"><span class="tab-icon">⚙️</span>Settings</div>
+      <div class="tab active"><i class="mdi mdi-home-outline"></i>Alex's Day</div>
+      <div class="tab"><i class="mdi mdi-clipboard-list-outline"></i>Tasks</div>
+      <div class="tab"><i class="mdi mdi-sleep"></i>Check-in</div>
+      <div class="tab"><i class="mdi mdi-cog-outline"></i>Settings</div>
     </div>
   </div>
 </div>
-<div class="screen-label">Home — Red</div>
+<div class="screen-label">Home — Red with suggestion actions</div>
 </div>
 
-<!-- Screen 3: Tasks -->
+<!-- 5: Tasks -->
 <div class="phone-wrapper">
 <div class="phone light">
   <div class="notch"></div>
   <div class="screen">
     <div class="status-bar">9:41</div>
     <div class="nav-title">Tasks</div>
-    <div class="task-item">
-      <div class="task-dot heavy"></div>
-      <div class="task-info">
-        <div class="task-title">Math Essay</div>
-        <div class="task-meta">Due Tomorrow · Heavy</div>
-      </div>
-    </div>
-    <div class="task-item">
-      <div class="task-dot medium"></div>
-      <div class="task-info">
-        <div class="task-title">History Reading</div>
-        <div class="task-meta">Due Friday · Medium</div>
-      </div>
-    </div>
-    <div class="task-item">
-      <div class="task-dot heavy"></div>
-      <div class="task-info">
-        <div class="task-title">Physics Exam</div>
-        <div class="task-meta">Due Monday · Heavy</div>
-      </div>
-    </div>
-    <div class="task-item">
-      <div class="task-dot light"></div>
-      <div class="task-info">
-        <div class="task-title">Group Project Meeting</div>
-        <div class="task-meta">Due Wednesday · Light</div>
-      </div>
-    </div>
+    <div class="task-item"><div class="task-dot heavy"></div><div class="task-info"><div class="task-title">Math Essay</div><div class="task-meta">Tomorrow · heavy</div></div><span class="check-btn">✓</span></div>
+    <div class="task-item"><div class="task-dot medium"></div><div class="task-info"><div class="task-title">History Reading</div><div class="task-meta">Friday · medium</div></div><span class="check-btn">✓</span></div>
+    <div class="task-item"><div class="task-dot heavy"></div><div class="task-info"><div class="task-title">Physics Exam</div><div class="task-meta">Monday · heavy</div></div><span class="check-btn">✓</span></div>
     <div style="flex:1"></div>
     <button class="btn btn-primary">+ Add Task</button>
     <div class="tab-bar">
-      <div class="tab"><span class="tab-icon">🏠</span>Home</div>
-      <div class="tab active"><span class="tab-icon">📋</span>Tasks</div>
-      <div class="tab"><span class="tab-icon">💤</span>Check-in</div>
-      <div class="tab"><span class="tab-icon">⚙️</span>Settings</div>
+      <div class="tab"><i class="mdi mdi-home-outline"></i>Alex's Day</div>
+      <div class="tab active"><i class="mdi mdi-clipboard-list-outline"></i>Tasks</div>
+      <div class="tab"><i class="mdi mdi-sleep"></i>Check-in</div>
+      <div class="tab"><i class="mdi mdi-cog-outline"></i>Settings</div>
     </div>
   </div>
 </div>
 <div class="screen-label">Tasks</div>
 </div>
 
-<!-- Screen 4: Daily Check-in -->
+<!-- 6: Task templates -->
 <div class="phone-wrapper">
 <div class="phone light">
   <div class="notch"></div>
   <div class="screen">
     <div class="status-bar">9:41</div>
-    <div class="header">
-      <h1>Daily Check-in</h1>
-      <p>How are you feeling today?</p>
+    <div class="nav-title">Add Task</div>
+    <div class="template-grid">
+      <div class="template-card"><i class="mdi mdi-school-outline"></i><div class="template-label">Exam</div></div>
+      <div class="template-card"><i class="mdi mdi-file-document-outline"></i><div class="template-label">Essay</div></div>
+      <div class="template-card"><i class="mdi mdi-book-open-outline"></i><div class="template-label">Reading</div></div>
+      <div class="template-card"><i class="mdi mdi-account-group-outline"></i><div class="template-label">Group Project</div></div>
     </div>
+    <button class="btn btn-primary">Add Task</button>
+    <button class="btn btn-text">Cancel</button>
+  </div>
+</div>
+<div class="screen-label">Add Task — Templates</div>
+</div>
+
+<!-- 7: Check-in -->
+<div class="phone-wrapper">
+<div class="phone light">
+  <div class="notch"></div>
+  <div class="screen">
+    <div class="status-bar">9:41</div>
+    <div class="header"><h1>Daily Check-in</h1><p>How are you feeling today?</p></div>
     <div class="checkin-circles">
-      <div class="checkin-circle"><span>😞</span></div>
-      <div class="checkin-circle"><span>😕</span></div>
-      <div class="checkin-circle selected"><span>😐</span></div>
-      <div class="checkin-circle"><span>🙂</span></div>
-      <div class="checkin-circle"><span>😊</span></div>
+      <div class="checkin-circle"><i class="mdi mdi-emoticon-cry-outline"></i></div>
+      <div class="checkin-circle"><i class="mdi mdi-emoticon-sad-outline"></i></div>
+      <div class="checkin-circle selected"><i class="mdi mdi-emoticon-neutral-outline"></i></div>
+      <div class="checkin-circle"><i class="mdi mdi-emoticon-happy-outline"></i></div>
+      <div class="checkin-circle"><i class="mdi mdi-emoticon-excited-outline"></i></div>
     </div>
-    <div class="card">
-      <div class="card-title">Sleep Check-in</div>
-      <div class="card-content">Last night's sleep</div>
-    </div>
-    <div class="time-picker">
-      <div class="time-option">
-        <div class="time-value">23:30</div>
-        <div class="card-title">Bedtime</div>
-      </div>
-      <div class="time-option">
-        <div class="time-value">7:00</div>
-        <div class="card-title">Wake up</div>
-      </div>
-    </div>
+    <div class="card"><div class="card-title">Sleep Check-in</div><div class="card-content">Last night: 23:30 → 7:00</div></div>
+    <div class="card-title" style="text-align:center;">How rested do you feel?</div>
     <div class="checkin-circles">
-      <div class="checkin-circle"><span>😞</span></div>
-      <div class="checkin-circle"><span>😕</span></div>
-      <div class="checkin-circle"><span>😐</span></div>
-      <div class="checkin-circle selected"><span>🙂</span></div>
-      <div class="checkin-circle"><span>😊</span></div>
+      <div class="checkin-circle"><i class="mdi mdi-emoticon-cry-outline"></i></div>
+      <div class="checkin-circle"><i class="mdi mdi-emoticon-sad-outline"></i></div>
+      <div class="checkin-circle"><i class="mdi mdi-emoticon-neutral-outline"></i></div>
+      <div class="checkin-circle selected"><i class="mdi mdi-emoticon-happy-outline"></i></div>
+      <div class="checkin-circle"><i class="mdi mdi-emoticon-excited-outline"></i></div>
     </div>
-    <div class="card-title" style="text-align:center; margin-top:8px;">How rested do you feel?</div>
     <div class="tab-bar">
-      <div class="tab"><span class="tab-icon">🏠</span>Home</div>
-      <div class="tab"><span class="tab-icon">📋</span>Tasks</div>
-      <div class="tab active"><span class="tab-icon">💤</span>Check-in</div>
-      <div class="tab"><span class="tab-icon">⚙️</span>Settings</div>
+      <div class="tab"><i class="mdi mdi-home-outline"></i>Alex's Day</div>
+      <div class="tab"><i class="mdi mdi-clipboard-list-outline"></i>Tasks</div>
+      <div class="tab active"><i class="mdi mdi-sleep"></i>Check-in</div>
+      <div class="tab"><i class="mdi mdi-cog-outline"></i>Settings</div>
     </div>
   </div>
 </div>
-<div class="screen-label">Check-in</div>
+<div class="screen-label">Check-in — Real mood icons</div>
 </div>
 
-<!-- Screen 5: Break Menu -->
+<!-- 8: Break menu -->
 <div class="phone-wrapper">
 <div class="phone light">
   <div class="notch"></div>
   <div class="screen">
     <div class="status-bar">9:41</div>
-    <div class="header">
-      <h1>Break Time</h1>
-      <p>Choose what feels right for you</p>
-    </div>
-    <div class="break-option">
-      <div class="break-icon">👁️</div>
-      <div class="break-info">
-        <div class="break-title">Eyes-off-screen reset</div>
-        <div class="break-duration">2 min · Look at something far away</div>
-      </div>
-    </div>
-    <div class="break-option">
-      <div class="break-icon">🌬️</div>
-      <div class="break-info">
-        <div class="break-title">Breathing exercise</div>
-        <div class="break-duration">3 min · 4-7-8 breathing pattern</div>
-      </div>
-    </div>
-    <div class="break-option">
-      <div class="break-icon">🧘</div>
-      <div class="break-info">
-        <div class="break-title">Stretch sequence</div>
-        <div class="break-duration">5 min · Neck, shoulders, back</div>
-      </div>
-    </div>
-    <div class="break-option">
-      <div class="break-icon">🚶</div>
-      <div class="break-info">
-        <div class="break-title">Quick walk</div>
-        <div class="break-duration">10 min · Around the block</div>
-      </div>
-    </div>
+    <div class="header"><h1>Break Time</h1><p>Choose what feels right for you</p></div>
+    <div class="break-option"><div class="break-icon"><i class="mdi mdi-eye-off-outline"></i></div><div class="break-info"><div class="break-title">Eyes-off-screen reset</div><div class="break-duration">2 min · Look at something far away</div></div></div>
+    <div class="break-option"><div class="break-icon"><i class="mdi mdi-weather-windy"></i></div><div class="break-info"><div class="break-title">Breathing exercise</div><div class="break-duration">3 min · 4-7-8 breathing pattern</div></div></div>
+    <div class="break-option"><div class="break-icon"><i class="mdi mdi-yoga"></i></div><div class="break-info"><div class="break-title">Stretch sequence</div><div class="break-duration">5 min · Neck, shoulders, back</div></div></div>
+    <div class="break-option"><div class="break-icon"><i class="mdi mdi-walk"></i></div><div class="break-info"><div class="break-title">Quick walk</div><div class="break-duration">10 min · Around the block</div></div></div>
     <div style="flex:1"></div>
     <button class="btn btn-text">Skip break</button>
     <div class="tab-bar">
-      <div class="tab"><span class="tab-icon">🏠</span>Home</div>
-      <div class="tab"><span class="tab-icon">📋</span>Tasks</div>
-      <div class="tab"><span class="tab-icon">💤</span>Check-in</div>
-      <div class="tab"><span class="tab-icon">⚙️</span>Settings</div>
+      <div class="tab"><i class="mdi mdi-home-outline"></i>Alex's Day</div>
+      <div class="tab"><i class="mdi mdi-clipboard-list-outline"></i>Tasks</div>
+      <div class="tab"><i class="mdi mdi-sleep"></i>Check-in</div>
+      <div class="tab"><i class="mdi mdi-cog-outline"></i>Settings</div>
     </div>
   </div>
 </div>
-<div class="screen-label">Break Menu</div>
+<div class="screen-label">Break Menu — Real icons</div>
 </div>
 
-<!-- Screen 6: Setup -->
+<!-- 9: AI chat -->
 <div class="phone-wrapper">
 <div class="phone light">
   <div class="notch"></div>
   <div class="screen">
     <div class="status-bar">9:41</div>
-    <div class="setup-progress">
-      <div class="progress-dot active"></div>
-      <div class="progress-dot"></div>
-      <div class="progress-dot"></div>
-      <div class="progress-dot"></div>
+    <div class="ai-header"><div class="ai-avatar"><i class="mdi mdi-robot-outline"></i></div><div><div class="ai-title">Evenly AI</div><div class="ai-sub">Study advice only — not therapy</div></div></div>
+    <div class="chat">
+      <div class="bubble ai">Hi! I'm Evenly AI. I can help with study and rest advice — sleep, focus, exams, breaks. What's on your mind?</div>
+      <div class="bubble user">Exam stress</div>
+      <div class="bubble ai">Exam pressure makes everything feel urgent, but panic studying backfires. List everything due, circle the one thing that moves the needle most, and work in 25-minute sessions with real breaks.</div>
     </div>
-    <div class="header">
-      <h1>Welcome</h1>
-      <p>Let's set up your study rhythm</p>
-    </div>
-    <div class="card">
-      <div class="card-title">When do you usually sleep?</div>
-      <div class="card-content">We'll protect your rest time</div>
-    </div>
-    <div class="time-picker">
-      <div class="time-option">
-        <div class="time-value">22:00</div>
-        <div class="card-title">Bedtime</div>
-      </div>
-      <div class="time-option selected">
-        <div class="time-value">23:00</div>
-        <div class="card-title">Bedtime</div>
-      </div>
-      <div class="time-option">
-        <div class="time-value">00:00</div>
-        <div class="card-title">Bedtime</div>
-      </div>
-    </div>
-    <div style="flex:1"></div>
-    <button class="btn btn-primary">Continue</button>
-    <button class="btn btn-text">Skip for now</button>
+    <div class="chips"><span class="chip">I can't sleep</span><span class="chip">Exam stress</span><span class="chip">I can't focus</span></div>
+    <div class="composer"><div class="input">Ask about sleep, focus, exams…</div><button class="send-btn"><i class="mdi mdi-send"></i></button></div>
   </div>
 </div>
-<div class="screen-label">Setup</div>
+<div class="screen-label">Evenly AI — Advice chat</div>
 </div>
 
-<!-- Screen 7: Dark Mode Home -->
+<!-- 10: Support -->
+<div class="phone-wrapper">
+<div class="phone light">
+  <div class="notch"></div>
+  <div class="screen">
+    <div class="status-bar">9:41</div>
+    <div class="header"><h1>Need to talk?</h1><p>You're not alone. Here are people who can help.</p></div>
+    <div class="card"><div class="ai-entry"><div class="ai-avatar"><i class="mdi mdi-robot-outline"></i></div><div class="ai-entry-info"><div class="ai-entry-title">Speak to our AI agent</div><div class="ai-entry-sub">Quick study advice, any time — not therapy</div></div><span class="chev">›</span></div></div>
+    <div class="card"><div class="card-title">Campus Counselor</div><div class="card-content" style="font-size:14px;">Free, confidential support for students</div></div>
+    <div class="card"><div class="card-title">Helplines (US)</div><div class="card-content" style="font-size:14px;">988 Suicide &amp; Crisis Lifeline — Call or text 988</div></div>
+    <div class="card"><div class="card-content" style="font-size:12px;color:#6B6B6B;text-align:center;">Evenly Study is a wellbeing tool, not a therapist.</div></div>
+    <div class="tab-bar">
+      <div class="tab"><i class="mdi mdi-home-outline"></i>Alex's Day</div>
+      <div class="tab"><i class="mdi mdi-clipboard-list-outline"></i>Tasks</div>
+      <div class="tab"><i class="mdi mdi-sleep"></i>Check-in</div>
+      <div class="tab"><i class="mdi mdi-cog-outline"></i>Settings</div>
+    </div>
+  </div>
+</div>
+<div class="screen-label">Support — AI entry + helplines</div>
+</div>
+
+<!-- 11: Dark mode -->
 <div class="phone-wrapper">
 <div class="phone dark">
   <div class="notch"></div>
   <div class="screen">
     <div class="status-bar">9:41</div>
-    <button class="support-btn">🆘</button>
-    <div class="header">
-      <h1>Good evening</h1>
-      <p>Let's check in with yourself</p>
-    </div>
+    <button class="support-btn"><i class="mdi mdi-lifebuoy"></i></button>
+    <div class="header"><h1>Good evening</h1><p>Let's check in with yourself</p></div>
     <div class="indicator-container">
-      <div class="indicator-circle yellow">
-        <span class="indicator-emoji">🌙</span>
-        <span class="indicator-label">Load building</span>
-      </div>
+      <div class="indicator-circle yellow"><i class="mdi mdi-weather-cloudy"></i><span class="indicator-label">Load building</span></div>
       <div class="indicator-text">Load is building</div>
       <div class="indicator-subtext">Workload up and/or sleep down</div>
     </div>
-    <div class="card">
-      <div class="card-title">This week</div>
-      <div class="trend-dots">
-        <div class="trend-dot green"></div>
-        <div class="trend-dot green"></div>
-        <div class="trend-dot yellow"></div>
-        <div class="trend-dot yellow"></div>
-        <div class="trend-dot yellow"></div>
-        <div class="trend-dot green"></div>
-        <div class="trend-dot yellow"></div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title">Suggestion</div>
-      <div class="card-content">Consider moving one task to tomorrow. You've been working hard!</div>
-    </div>
+    <div class="card"><div class="card-title">Suggestion</div><div class="card-content">Consider moving one task to tomorrow. You've been working hard!</div></div>
     <div class="tab-bar">
-      <div class="tab active"><span class="tab-icon">🏠</span>Home</div>
-      <div class="tab"><span class="tab-icon">📋</span>Tasks</div>
-      <div class="tab"><span class="tab-icon">💤</span>Check-in</div>
-      <div class="tab"><span class="tab-icon">⚙️</span>Settings</div>
+      <div class="tab active"><i class="mdi mdi-home-outline"></i>Alex's Day</div>
+      <div class="tab"><i class="mdi mdi-clipboard-list-outline"></i>Tasks</div>
+      <div class="tab"><i class="mdi mdi-sleep"></i>Check-in</div>
+      <div class="tab"><i class="mdi mdi-cog-outline"></i>Settings</div>
     </div>
   </div>
 </div>
 <div class="screen-label">Home — Dark Mode (Yellow)</div>
-</div>
-
-<!-- Screen 8: Support -->
-<div class="phone-wrapper">
-<div class="phone light">
-  <div class="notch"></div>
-  <div class="screen">
-    <div class="status-bar">9:41</div>
-    <div class="header">
-      <h1>Need to talk?</h1>
-      <p>You're not alone. Here are people who can help.</p>
-    </div>
-    <div class="card">
-      <div class="card-title">Campus Counselor</div>
-      <div class="card-content">Free, confidential support for students</div>
-      <button class="btn btn-secondary" style="margin-top:12px;">Contact</button>
-    </div>
-    <div class="card">
-      <div class="card-title">Trusted Friend or Family</div>
-      <div class="card-content">Someone you know and trust</div>
-      <button class="btn btn-secondary" style="margin-top:12px;">Choose Contact</button>
-    </div>
-    <div class="card">
-      <div class="card-title">Helpline</div>
-      <div class="card-content">24/7 crisis support</div>
-      <button class="btn btn-secondary" style="margin-top:12px;">View Numbers</button>
-    </div>
-    <div class="card" style="background: #F0EDE8;">
-      <div class="card-content" style="font-size: 14px; color: #6B6B6B; text-align: center;">
-        Evenly Study is a wellbeing tool, not a therapist. We don't diagnose, treat, or replace professional care.
-      </div>
-    </div>
-    <div class="tab-bar">
-      <div class="tab"><span class="tab-icon">🏠</span>Home</div>
-      <div class="tab"><span class="tab-icon">📋</span>Tasks</div>
-      <div class="tab"><span class="tab-icon">💤</span>Check-in</div>
-      <div class="tab"><span class="tab-icon">⚙️</span>Settings</div>
-    </div>
-  </div>
-</div>
-<div class="screen-label">Support</div>
 </div>
 
 </body>
