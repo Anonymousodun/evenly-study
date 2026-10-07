@@ -40,6 +40,21 @@ export interface SkippedBreak {
   created_at: string;
 }
 
+export type ScheduleKind = 'class' | 'study' | 'work' | 'other';
+
+// A fixed weekly timetable block. day: 0 (Sunday) - 6 (Saturday).
+// Times are 'HH:MM' strings. V2-1: manual entry only.
+export interface ScheduleBlock {
+  id: string;
+  user_id: string;
+  day: number;
+  title: string;
+  kind: ScheduleKind;
+  start_time: string;
+  end_time: string;
+  created_at: string;
+}
+
 export interface FocusSession {
   id: string;
   user_id: string;
@@ -88,5 +103,6 @@ export interface AppState {
   suggestions: Suggestion[];
   settings: Settings;
   skippedBreaks: SkippedBreak[];
+  schedule: ScheduleBlock[];
   user: User | null;
 }

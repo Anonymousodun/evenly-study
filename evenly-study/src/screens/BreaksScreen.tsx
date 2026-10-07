@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Vibration } from 'react-native';
+import { View, StyleSheet, ScrollView, Vibration, Platform } from 'react-native';
 import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
 import { Card } from '../components/common/Card';
@@ -52,7 +52,9 @@ export function BreaksScreen({ navigation }: any) {
   }, [mode, secondsLeft]);
 
   const handleTimerEnd = () => {
-    Vibration.vibrate(500);
+    if (Platform.OS !== 'web') {
+      Vibration.vibrate(500);
+    }
     if (mode === 'focus') {
       setMode('idle');
       setToast('Focus session done — pick a break');

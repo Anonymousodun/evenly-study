@@ -1,0 +1,18 @@
+[build]
+  publish = "dist"
+  command = "npx expo export --platform web"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# React Navigation deep links need every route served by index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"

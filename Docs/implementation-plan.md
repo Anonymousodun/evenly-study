@@ -1162,6 +1162,26 @@ Features to add after real student testing:
 
 ---
 
+## Version 2 Phases (from PRD v1.1)
+
+Decisions locked: self-hosted PostgreSQL + PostgREST backend (no hosted platforms);
+manual schedule entry first, photo/file upload later; 8h default sleep target;
+advisor links auto-expire after 30 days.
+
+| Phase | Duration | Deliverable |
+|---|---|---|
+| V2-1: Manual Schedule Entry | 2-3 days | `schedule_blocks` model, entry form, weekly view |
+| V2-2: Suggestion Engine + Toggle | 3-4 days | "Your schedule" vs "Our suggestion", diff summary, adopt working schedule |
+| V2-3: Overload Flagging | 2 days | Immediate on-edit flags, weekly flag summary |
+| V2-4: Weekly Review | 3 days | Review screen, day picker (Sunday default), Reviews history, notification |
+| V2-5: Crunch Mode | 2-3 days | Manual + suggested activation, end date, recovery period |
+| V2-6: 60-Second Tips | 2 days | Sleep/Breaks/Stress/Focus topics seeded from science notes, contextual "Why?" links |
+| V2-7: Sleep Scoring | 2 days | Plain-language score, weekly-reset debt, 8h default target setting |
+| V2-8: Advisor Sharing | 3-4 days | Shareable links (30-day expiry, revocable), read-only summary — needs PostgREST backend |
+| Later: Photo/File Upload | TBD | OCR/parsing engine decision required first |
+
+---
+
 ## Risk Mitigation
 
 | Risk | Mitigation |

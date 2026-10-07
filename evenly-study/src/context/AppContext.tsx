@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { AppState, Task, SleepEntry, DailyCheckIn, SkippedBreak, Suggestion, Settings, BurnoutLevel, User } from '../types';
+import { AppState, Task, SleepEntry, DailyCheckIn, SkippedBreak, Suggestion, Settings, BurnoutLevel, User, ScheduleBlock } from '../types';
 import { lightTheme, darkTheme, Theme } from './themes';
 import { calculateBurnoutLevel } from '../utils/burnoutAlgorithm';
 
@@ -21,6 +21,7 @@ const initialState: AppState = {
   suggestions: [],
   settings: defaultSettings,
   skippedBreaks: [],
+  schedule: [],
   user: null,
 };
 
@@ -35,6 +36,9 @@ type Action =
   | { type: 'APPROVE_SUGGESTION'; payload: string }
   | { type: 'DISMISS_SUGGESTION'; payload: string }
   | { type: 'LOG_SKIPPED_BREAK'; payload: SkippedBreak }
+  | { type: 'ADD_SCHEDULE_BLOCK'; payload: ScheduleBlock }
+  | { type: 'UPDATE_SCHEDULE_BLOCK'; payload: ScheduleBlock }
+  | { type: 'DELETE_SCHEDULE_BLOCK'; payload: string }
   | { type: 'UPDATE_SETTINGS'; payload: Partial<Settings> }
   | { type: 'SET_USER'; payload: User | null }
   | { type: 'LOAD_DATA'; payload: Partial<AppState> }
@@ -75,6 +79,15 @@ function appReducer(state: AppState, action: Action): AppState {
       };
     case 'LOG_SKIPPED_BREAK':
       return { ...state, skippedBreaks: [...state.skippedBreaks, action.payload] };
+    case 'ADD_SCHEDULE_BLOCK':
+      return { ...state, schedule: [...state.schedule, action.payload] };
+    case 'UPDATE_SCHEDULE_BLOCK':
+      return {
+        ...state,
+        schedule: state.schedule.map(b => b.id === action.payload.id ? action.payload : b),
+      };
+    case 'DELETE_SCHEDULE_BLOCK':
+      return { ...state, schedule: state.schedule.filter(b => b.id !== action.payload) };
     case 'UPDATE_SETTINGS':
       return { ...state, settings: { ...state.settings, ...action.payload } };
     case 'SET_USER':

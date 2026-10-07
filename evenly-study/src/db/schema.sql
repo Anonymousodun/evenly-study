@@ -56,3 +56,14 @@ CREATE TABLE IF NOT EXISTS sessions (
   completed BOOLEAN DEFAULT FALSE,
   skipped BOOLEAN DEFAULT FALSE
 );
+
+CREATE TABLE IF NOT EXISTS schedule_blocks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  day INTEGER NOT NULL CHECK (day BETWEEN 0 AND 6),
+  title VARCHAR(500) NOT NULL,
+  kind VARCHAR(20) NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);

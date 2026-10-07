@@ -1,6 +1,6 @@
 # Evenly Study: Product Requirements Document
 
-**Version:** 1.0 (feature plan) | **Date:** September 28, 2026 | **Owner:** Founder (solo)
+**Version:** 1.1 (feature plan, Version 2 detailed) | **Date:** October 6, 2026 | **Owner:** Founder (solo)
 
 ---
 
@@ -156,13 +156,80 @@ The app uses a Pomodoro-style rhythm as the default and adjusts it to the worklo
 
 ## 7. Version 2: Features (after real student feedback)
 
-1. **Schedule comparison:** Students upload or enter their own timetables and routines (classes, work shifts, workouts, family time). Evenly Study shows "Your schedule" next to "Our suggested balance," highlights differences in plain language, and lets the student choose theirs, ours, or take suggestions one at a time. The app shows what it understood from an upload so the student can correct mistakes.
-2. **Overloaded-schedule honesty:** If the student's own schedule leaves little room for sleep or breaks, the app respects it but calmly flags what is unsustainable (for example, "This week leaves only 5 hours for sleep on 3 nights") and offers one or two realistic fixes, without judging.
-3. **Crunch mode** for exam seasons and big deadlines: one tap to start, with an end date set up front. It protects the essentials (minimum sleep, short frequent breaks, real meals, some movement), drops nice-to-haves, and includes a planned **recovery period** afterward.
-4. **Weekly review:** a short summary (under a minute to read) with a few highlights, leading with wins, ending with one small suggestion for next week that can be applied in one tap.
-5. **Advisor sharing:** Students can choose to share a simple summary (for example, the weekly trend, not individual check-in answers) with someone they trust, such as an academic advisor. The student decides who sees it and can stop sharing any time. No automatic reports to parents or schools.
-6. **Quick tips section** (working name "60-second tips"): bite-sized science topics with the reading time shown up front (for example, "Why sleep matters for memory, 30 sec"), with a short note before it so students know it is quick.
-7. **Detailed sleep scoring and sleep-debt trends:** a plain-language sleep score ("Well rested," "Running low," "Sleep debt building") and a weekly view of sleep debt.
+### 7.1 Schedule Comparison
+Students add their own timetable and routine, and Evenly Study compares it with its own suggested balance.
+
+**Requirements**
+- Students can add their schedule three ways: manual entry, a photo upload (e.g., a screenshot of a timetable), or a file upload (PDF/spreadsheet).
+- Build order: **manual entry first**; photo and file uploads come in a later update.
+- For photo or file uploads, the app shows what it understood and lets the student correct any mistakes before using it.
+- The schedule is shown via a **toggle** between "Your schedule" and "Our suggestion" (not side-by-side or an overlay), with a short plain-language summary of the differences on top (for example, "We added 2 breaks and moved Thursday's essay to Friday").
+- Once the student picks a final version (theirs, ours, or a mix), it becomes their new **working/default schedule** going forward. The original upload is kept only as a backup they can revert to.
+- Future comparisons run against the student's current working schedule, not the original upload.
+
+### 7.2 Honest Flagging of Overloaded Schedules
+If a student's own schedule leaves little room for sleep or breaks, the app says so clearly but kindly.
+
+**Requirements**
+- Flags appear **immediately** whenever the student edits their schedule, on the same screen, not on a weekly timer and not as a separate notification.
+- Flags are factual and specific (for example, "This week leaves only 5 hours for sleep on 3 nights").
+- Suggested fixes only touch **study/task time** (splitting a task, moving a flexible item, shortening a study block). The app never suggests changing workouts, jobs, shifts, or other non-study commitments.
+- If the overload is coming from fixed, non-study commitments, the flag can say so factually without prescribing a fix to those commitments.
+- The weekly review separately summarizes any flags that came up that week.
+
+### 7.3 Crunch Mode
+A dedicated mode for exam seasons and major deadlines, when the normal balance won't fit.
+
+**Requirements**
+- Can be turned on **manually** by the student at any time.
+- Can also be **suggested by the app** as a one-time, easy-to-dismiss prompt when it detects several heavy or red days in a row. The app never repeats the suggestion if the student declines.
+- One tap to start, with an **end date set up front**.
+- While active, it protects the essentials: minimum sleep, short and frequent breaks, real meals, some movement. It drops nice-to-haves like long wind-down routines or extra tips.
+- Includes a planned **recovery period** of roughly 2-3 days after crunch mode ends:
+  - Break suggestions lean toward longer, more restorative options.
+  - The sleep cutoff shifts a bit earlier automatically.
+  - The app holds off suggesting new heavy tasks or additional load-lightening prompts.
+- The following weekly review checks in on how the student is doing before fully returning to the normal balance.
+
+### 7.4 Weekly Review
+A short, regular summary of the student's week.
+
+**Requirements**
+- Takes under a minute to read.
+- Student chooses their own day for the review, with **Sunday evening** pre-selected as the default during setup.
+- Delivered as a **gentle, optional notification** on the chosen day (controlled via notification settings). Tapping it opens the review; dismissing it still saves it.
+- Always accessible afterward in a **"Reviews" tab/history**, so students can revisit past weeks or catch up if they missed one.
+- Includes a few highlights (sleep, breaks taken, workload balance, best day), leads with what went well, and ends with **one small suggestion** for next week that can be applied in one tap.
+- Also summarizes any schedule-overload flags from that week, and checks in after a crunch-mode recovery period.
+
+### 7.5 Advisor Sharing
+Students can optionally share a simple progress summary with someone they trust, such as an academic advisor.
+
+**Requirements**
+- Sharing is **off by default** and fully optional.
+- The student generates a **shareable link or code** (not an email-invite system). The advisor opens it directly, with no account needed.
+- The advisor sees a **read-only summary only** (for example, the weekly trend), never individual check-in answers, sleep times, or personal notes.
+- The student can **revoke the link at any time**.
+- Links **expire automatically after 30 days**; the student can generate a fresh one.
+- No automatic reports are ever sent to parents, schools, or anyone else without the student's direct action.
+
+### 7.6 "60-Second Tips" Section
+A lightweight place for students to learn the science behind the app's suggestions, if they're curious.
+
+**Requirements**
+- Organized into a small, fixed set of loose categories: **Sleep, Breaks, Stress, Focus**. No long flat list.
+- Each topic shows its reading time up front (for example, "Why sleep matters for memory, 30 sec").
+- A short note appears before the section so students know it's quick, since "Learn more" labels are often assumed to mean long text.
+- Also surfaces **contextually**: the "Why?" tap next to a suggestion (Section 6.11) links to the relevant short topic.
+
+### 7.7 Detailed Sleep Scoring and Sleep-Debt Trends
+A more detailed, still simple, view of sleep health.
+
+**Requirements**
+- A plain-language sleep score ("Well rested," "Running low," "Sleep debt building"), not a raw number, based mainly on hours slept against a science-backed target with a small adjustment for how rested the student says they feel.
+- Default sleep target is **8 hours**, adjustable by the student in settings.
+- Sleep debt (hours "borrowed" relative to target) is shown for the **current week only** and **resets each week**. It does not accumulate indefinitely.
+- A chronic multi-week pattern of low sleep is not shown as a growing debt counter. Instead, it surfaces gently as a trend note in the weekly review (for example, "You've had low sleep for 3 weeks running").
 
 ---
 
@@ -231,3 +298,4 @@ Note: less time spent in the app can be a good sign if students are resting more
 - **Age and consent:** Confirm the rules for users under 18 in your launch regions.
 - **Adoption:** Students may skip check-ins; keep them extremely short and watch return rates closely.
 - **Solo build:** The Version 1 scope is deliberately small. Resist adding Version 2 features early.
+- **Backend (decided):** Version 2 sharing and uploads will use **self-hosted PostgreSQL with PostgREST** — no Supabase, Firebase, or other hosted platforms (avoids vendor lock-in and platform fees).

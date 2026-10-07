@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
 import { Card } from '../components/common/Card';
@@ -58,10 +59,12 @@ export function CheckInScreen({ navigation }: any) {
 
         <View style={styles.timeRow}>
           <View style={styles.timeOption}>
+            <MaterialCommunityIcons name="weather-night" size={30} color={theme.colors.primary} />
             <AppText variant="h2">{bedtime}</AppText>
             <AppText variant="caption" color="secondary">Bedtime</AppText>
           </View>
           <View style={styles.timeOption}>
+            <MaterialCommunityIcons name="weather-sunny" size={30} color={theme.colors.warning} />
             <AppText variant="h2">{wakeTime}</AppText>
             <AppText variant="caption" color="secondary">Wake up</AppText>
           </View>

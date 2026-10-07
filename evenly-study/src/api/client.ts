@@ -22,7 +22,12 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     headers['Authorization'] = `Bearer ${sessionToken}`;
   }
 
-  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+  } catch {
+    throw new Error('API_UNREACHABLE');
+  }
 
   if (res.status === 401) {
     throw new Error('NOT_SIGNED_IN');

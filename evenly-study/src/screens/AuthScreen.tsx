@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import { signUp, signIn } from '../api/auth';
+
+const IS_WEB = Platform.OS === 'web';
 
 export function AuthScreen() {
   const { dispatch, theme } = useAppContext();
@@ -15,6 +17,7 @@ export function AuthScreen() {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [showForm, setShowForm] = useState(!IS_WEB);
 
   const handleSubmit = async () => {
     if (!email.trim() || !password || busy) return;
@@ -40,13 +43,34 @@ export function AuthScreen() {
         },
       });
     } catch (err) {
-      setError((err as Error).message || 'Something went wrong. Is the server running?');
+      const message = (err as Error).message || 'Something went wrong.';
+      if (message.includes('API_UNREACHABLE') || message.includes('Failed to fetch')) {
+        setError('Cannot reach the Evenly Study server. Use the offline demo below, or start the API and try again.');
+      } else {
+        setError(message);
+      }
     } finally {
       setBusy(false);
     }
   };
 
-  return (
+  const enterDemoMode = () => {
+    const now = new Date().toISOString();
+    dispatch({
+      type: 'SET_USER',
+      payload: {
+        id: 'demo-user',
+        email: 'demo@evenly.app',
+        name: 'Demo Student',
+        password_hash: '',
+        target_bedtime: '23:00',
+        created_at: now,
+        updated_at: now,
+      },
+    });
+  };
+
+return (
     <ScrollView style={[styles.container, { backgroundColor: theme.colors.bg }]}>
       <View style={styles.header}>
         <AppText variant="h1">{isLogin ? 'Welcome back' : 'Create account'}</AppText>
@@ -55,6 +79,24 @@ export function AuthScreen() {
         </AppText>
       </View>
 
+      {IS_WEB && !showForm && (
+        <View style={styles.demoBlock}>
+          <AppText variant="body" style={styles.demoCopy}>
+            Evenly Study balances focused study sessions with real breaks, sleep targets and
+            burnout check-ins. Start the demo to explore with sample data.
+          </AppText>
+          <Button title="Explore the demo" onPress={enterDemoMode} />
+          <Button
+            title="Sign in to my account"
+            variant="secondary"
+            onPress={() => setShowForm(true)}
+            style={styles.secondaryAction}
+          />
+        </View>
+      )}
+
+      {(!IS_WEB || showForm) && (
+        <>
       {!isLogin && (
         <Input
           label="Name"
@@ -91,11 +133,19 @@ export function AuthScreen() {
         disabled={busy}
       />
 
+      <TouchableOpacity onPress={enterDemoMode}>
+        <AppText variant="bodySmall" color="secondary" style={styles.switchText}>
+          No account? Explore the offline demo
+        </AppText>
+      </TouchableOpacity>
+
       <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
         <AppText variant="bodySmall" color="secondary" style={styles.switchText}>
           {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
         </AppText>
       </TouchableOpacity>
+        </>
+      )}
 
       <View style={{ height: 100 }} />
     </ScrollView>
@@ -114,6 +164,15 @@ const styles = StyleSheet.create({
   switchText: {
     textAlign: 'center',
     marginTop: 16,
+  },
+  demoBlock: {
+    marginBottom: 8,
+  },
+  demoCopy: {
+    marginBottom: 20,
+  },
+  secondaryAction: {
+    marginTop: 12,
   },
   error: {
     color: '#B87333',

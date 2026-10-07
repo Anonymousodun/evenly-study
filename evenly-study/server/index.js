@@ -21,6 +21,7 @@ app.use('/api/sleep', require('./routes/sleep'));
 app.use('/api/checkins', require('./routes/checkins'));
 app.use('/api/skips', require('./routes/skips'));
 app.use('/api/sessions', require('./routes/sessions'));
+app.use('/api/schedule', require('./routes/schedule'));
 app.use('/api/me', require('./routes/me'));
 
 app.use((req, res) => {

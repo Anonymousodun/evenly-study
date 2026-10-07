@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { HomeScreen } from '../screens/HomeScreen';
 import { TasksScreen } from '../screens/TasksScreen';
+import { ScheduleScreen } from '../screens/ScheduleScreen';
 import { CheckInScreen } from '../screens/CheckInScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
 import { useAppContext } from '../context/AppContext';
@@ -12,6 +13,7 @@ const Tab = createBottomTabNavigator();
 const TAB_ICONS: Record<string, string> = {
   Home: 'home-outline',
   Tasks: 'clipboard-list-outline',
+  Schedule: 'calendar-week-outline',
   CheckIn: 'sleep',
   Settings: 'cog-outline',
 };
@@ -43,6 +45,7 @@ export function TabNavigator() {
         options={{ title: userName ? `${userName}'s Day` : 'Home' }}
       />
       <Tab.Screen name="Tasks" component={TasksScreen} />
+      <Tab.Screen name="Schedule" component={ScheduleScreen} />
       <Tab.Screen name="CheckIn" component={CheckInScreen} options={{ title: 'Check-in' }} />
       <Tab.Screen name="Settings" component={SettingsScreen} />
     </Tab.Navigator>
