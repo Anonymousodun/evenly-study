@@ -83,6 +83,8 @@ export interface Settings {
   windDownReminder: boolean;
   region: string;
   setupComplete: boolean;
+  reviewDay: string; // e.g. 'Sunday'
+  reviewReminder: boolean;
 }
 
 export interface Suggestion {
@@ -106,6 +108,7 @@ export interface AppState {
   schedule: ScheduleBlock[];
   scheduleBackup: ScheduleBlock[] | null;
   flagLog: FlagLogEntry[];
+  reviews: Review[];
   user: User | null;
 }
 
@@ -114,4 +117,15 @@ export interface FlagLogEntry {
   id: string;
   date: string; // YYYY-MM-DD
   text: string;
+}
+
+// A saved weekly review snapshot (PRD 7.4).
+export interface Review {
+  id: string;
+  weekStart: string; // YYYY-MM-DD
+  createdAt: string;
+  summary: string;
+  highlights: string[];
+  suggestion: string;
+  flags: string[];
 }

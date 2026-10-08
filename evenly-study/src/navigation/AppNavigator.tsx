@@ -9,6 +9,7 @@ import { TaskFormScreen } from '../screens/TaskFormScreen';
 import { TaskDetailScreen } from '../screens/TaskDetailScreen';
 import { ScheduleFormScreen } from '../screens/ScheduleFormScreen';
 import { WeeklyTrendScreen } from '../screens/WeeklyTrendScreen';
+import { ReviewsScreen } from '../screens/ReviewsScreen';
 import { SleepSettingsScreen } from '../screens/SleepSettingsScreen';
 import { AuthScreen } from '../screens/AuthScreen';
 import { AISupportScreen } from '../screens/AISupportScreen';
@@ -48,6 +49,7 @@ export function AppNavigator() {
           <Stack.Screen name="TaskDetail" component={TaskDetailScreen} />
           <Stack.Screen name="ScheduleForm" component={ScheduleFormScreen} />
           <Stack.Screen name="WeeklyTrend" component={WeeklyTrendScreen} />
+          <Stack.Screen name="Reviews" component={ReviewsScreen} />
           <Stack.Screen name="SleepSettings" component={SleepSettingsScreen} />
         </Stack.Navigator>
         </>

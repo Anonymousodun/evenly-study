@@ -8,6 +8,7 @@ import { Button } from '../components/common/Button';
 import { signOut } from '../api/auth';
 
 const REGIONS = ['US', 'UK', 'CA', 'AU'];
+const REVIEW_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export function SettingsScreen({ navigation }: any) {
   const { state, dispatch, theme, isDark, toggleTheme } = useAppContext();
@@ -68,6 +69,49 @@ export function SettingsScreen({ navigation }: any) {
           <AppText variant="body">Break length</AppText>
           <AppText variant="body" color="secondary">{state.settings.breakLength} min</AppText>
         </View>
+      </Card>
+
+      <Card>
+        <AppText variant="label" color="secondary">Weekly review</AppText>
+        <View style={styles.settingRow}>
+          <AppText variant="body">Review reminder</AppText>
+          <Switch
+            value={state.settings.reviewReminder}
+            onValueChange={(val) => dispatch({ type: 'UPDATE_SETTINGS', payload: { reviewReminder: val } })}
+          />
+        </View>
+        <AppText variant="bodySmall" color="secondary" style={styles.reviewLabel}>
+          Review day
+        </AppText>
+        <View style={styles.regionRow}>
+          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((short, i) => {
+            const selected = state.settings.reviewDay === REVIEW_DAYS[i];
+            return (
+              <TouchableOpacity
+                key={short}
+                style={[
+                  styles.dayBtn,
+                  { backgroundColor: selected ? theme.colors.primary : theme.colors.bg },
+                ]}
+                onPress={() => dispatch({ type: 'UPDATE_SETTINGS', payload: { reviewDay: REVIEW_DAYS[i] } })}
+              >
+                <AppText
+                  variant="label"
+                  style={{ color: selected ? '#FFFFFF' : theme.colors.text }}
+                >
+                  {short}
+                </AppText>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        <TouchableOpacity
+          style={styles.linkRow}
+          onPress={() => navigation.navigate('Reviews')}
+        >
+          <AppText variant="body">Past reviews</AppText>
+          <MaterialCommunityIcons name="chevron-right" size={22} color={theme.colors.textSecondary} />
+        </TouchableOpacity>
       </Card>
 
       <Card>
@@ -136,5 +180,14 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     alignItems: 'center',
+  },
+  dayBtn: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  reviewLabel: {
+    marginTop: 12,
   },
 });

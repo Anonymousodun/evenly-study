@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { AppState, Task, SleepEntry, DailyCheckIn, SkippedBreak, Suggestion, Settings, BurnoutLevel, User, ScheduleBlock, FlagLogEntry } from '../types';
+import { AppState, Task, SleepEntry, DailyCheckIn, SkippedBreak, Suggestion, Settings, BurnoutLevel, User, ScheduleBlock, FlagLogEntry, Review } from '../types';
 import { lightTheme, darkTheme, Theme } from './themes';
 import { calculateBurnoutLevel } from '../utils/burnoutAlgorithm';
 
@@ -11,6 +11,8 @@ const defaultSettings: Settings = {
   windDownReminder: true,
   region: 'US',
   setupComplete: false,
+  reviewDay: 'Sunday',
+  reviewReminder: true,
 };
 
 const initialState: AppState = {
@@ -24,6 +26,7 @@ const initialState: AppState = {
   schedule: [],
   scheduleBackup: null,
   flagLog: [],
+  reviews: [],
   user: null,
 };
 
@@ -43,6 +46,7 @@ type Action =
   | { type: 'DELETE_SCHEDULE_BLOCK'; payload: string }
   | { type: 'SET_SCHEDULE_BACKUP'; payload: ScheduleBlock[] | null }
   | { type: 'LOG_FLAG'; payload: FlagLogEntry }
+  | { type: 'SAVE_REVIEW'; payload: Review }
   | { type: 'UPDATE_SETTINGS'; payload: Partial<Settings> }
   | { type: 'SET_USER'; payload: User | null }
   | { type: 'LOAD_DATA'; payload: Partial<AppState> }
@@ -96,6 +100,14 @@ function appReducer(state: AppState, action: Action): AppState {
       return { ...state, scheduleBackup: action.payload };
     case 'LOG_FLAG':
       return { ...state, flagLog: [...state.flagLog, action.payload] };
+    case 'SAVE_REVIEW':
+      return {
+        ...state,
+        reviews: [
+          action.payload,
+          ...state.reviews.filter(r => r.weekStart !== action.payload.weekStart),
+        ],
+      };
     case 'UPDATE_SETTINGS':
       return { ...state, settings: { ...state.settings, ...action.payload } };
     case 'SET_USER':

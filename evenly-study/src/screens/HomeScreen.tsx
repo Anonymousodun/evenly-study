@@ -95,6 +95,13 @@ export function HomeScreen({ navigation }: any) {
         </Card>
       </TouchableOpacity>
 
+      <TouchableOpacity onPress={() => navigation.navigate('Reviews')} activeOpacity={0.8}>
+        <Card>
+          <AppText variant="label" color="secondary">Weekly review — tap to read</AppText>
+          <AppText variant="body">Look back, then one small idea for next week.</AppText>
+        </Card>
+      </TouchableOpacity>
+
       {activeSuggestion ? (
         <SuggestionCard
           text={activeSuggestion.text}
