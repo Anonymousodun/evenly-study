@@ -47,5 +47,46 @@ export function useSchedule() {
     dispatch({ type: 'DELETE_SCHEDULE_BLOCK', payload: blockId });
   };
 
-  return { schedule: state.schedule, loadSchedule, addBlock, removeBlock };
+  // Replace the working schedule with a suggestion. Unchanged blocks are kept;
+  // changed ones are deleted and re-added. The pre-adopt schedule is kept as backup.
+  const adoptSuggestion = async (suggested: ScheduleBlock[]) => {
+    dispatch({ type: 'SET_SCHEDULE_BACKUP', payload: [...state.schedule] });
+    const same = (a: ScheduleBlock, b: ScheduleBlock) =>
+      a.id === b.id && a.start_time === b.start_time && a.end_time === b.end_time &&
+      a.day === b.day && a.title === b.title && a.kind === b.kind;
+    for (const current of state.schedule) {
+      if (!suggested.some(s => same(s, current))) {
+        try {
+          await api.del(`/api/schedule/${current.id}`);
+        } catch {
+          // Offline — still remove locally.
+        }
+        dispatch({ type: 'DELETE_SCHEDULE_BLOCK', payload: current.id });
+      }
+    }
+    for (const s of suggested) {
+      if (!state.schedule.some(c => same(c, s))) {
+        await addBlock(s.day, s.title, s.kind, s.start_time, s.end_time);
+      }
+    }
+  };
+
+  const revertSchedule = async () => {
+    const backup = state.scheduleBackup;
+    if (!backup) return;
+    for (const current of [...state.schedule]) {
+      try {
+        await api.del(`/api/schedule/${current.id}`);
+      } catch {
+        // Offline — still remove locally.
+      }
+      dispatch({ type: 'DELETE_SCHEDULE_BLOCK', payload: current.id });
+    }
+    for (const b of backup) {
+      await addBlock(b.day, b.title, b.kind, b.start_time, b.end_time);
+    }
+    dispatch({ type: 'SET_SCHEDULE_BACKUP', payload: null });
+  };
+
+  return { schedule: state.schedule, scheduleBackup: state.scheduleBackup, loadSchedule, addBlock, removeBlock, adoptSuggestion, revertSchedule };
 }

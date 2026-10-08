@@ -22,6 +22,7 @@ const initialState: AppState = {
   settings: defaultSettings,
   skippedBreaks: [],
   schedule: [],
+  scheduleBackup: null,
   user: null,
 };
 
@@ -39,6 +40,7 @@ type Action =
   | { type: 'ADD_SCHEDULE_BLOCK'; payload: ScheduleBlock }
   | { type: 'UPDATE_SCHEDULE_BLOCK'; payload: ScheduleBlock }
   | { type: 'DELETE_SCHEDULE_BLOCK'; payload: string }
+  | { type: 'SET_SCHEDULE_BACKUP'; payload: ScheduleBlock[] | null }
   | { type: 'UPDATE_SETTINGS'; payload: Partial<Settings> }
   | { type: 'SET_USER'; payload: User | null }
   | { type: 'LOAD_DATA'; payload: Partial<AppState> }
@@ -88,6 +90,8 @@ function appReducer(state: AppState, action: Action): AppState {
       };
     case 'DELETE_SCHEDULE_BLOCK':
       return { ...state, schedule: state.schedule.filter(b => b.id !== action.payload) };
+    case 'SET_SCHEDULE_BACKUP':
+      return { ...state, scheduleBackup: action.payload };
     case 'UPDATE_SETTINGS':
       return { ...state, settings: { ...state.settings, ...action.payload } };
     case 'SET_USER':

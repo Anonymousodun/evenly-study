@@ -5,7 +5,7 @@ const { requireSession } = require('../middleware');
 const router = express.Router();
 router.use(requireSession);
 
-const KINDS = ['class', 'study', 'work', 'other'];
+const KINDS = ['class', 'study', 'work', 'other', 'break'];
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 function validBlock(b) {

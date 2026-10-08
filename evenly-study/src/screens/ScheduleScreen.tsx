@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppContext } from '../context/AppContext';
@@ -7,7 +7,8 @@ import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { EmptyState } from '../components/common/EmptyState';
 import { useSchedule } from '../hooks/useSchedule';
-import { ScheduleKind } from '../types';
+import { suggestSchedule } from '../utils/scheduleSuggest';
+import { ScheduleBlock, ScheduleKind } from '../types';
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -16,14 +17,66 @@ const KIND_ICONS: Record<ScheduleKind, string> = {
   study: 'book-open-page-variant-outline',
   work: 'briefcase-outline',
   other: 'calendar-blank-outline',
+  break: 'coffee-outline',
 };
 
-export function ScheduleScreen({ navigation }: any) {
+function BlockRow({ block, onDelete }: { block: ScheduleBlock; onDelete?: () => void }) {
   const { theme } = useAppContext();
-  const { schedule, removeBlock } = useSchedule();
+  return (
+    <Card style={styles.blockCard}>
+      <View style={styles.blockRow}>
+        <MaterialCommunityIcons
+          name={(KIND_ICONS[block.kind] ?? KIND_ICONS.other) as any}
+          size={28}
+          color={block.kind === 'break' ? theme.colors.warning : theme.colors.primary}
+        />
+        <View style={styles.blockText}>
+          <AppText variant="body">{block.title}</AppText>
+          <AppText variant="bodySmall" color="secondary">
+            {block.start_time.slice(0, 5)} – {block.end_time.slice(0, 5)} · {block.kind}
+          </AppText>
+        </View>
+        {onDelete && (
+          <TouchableOpacity onPress={onDelete} hitSlop={12}>
+            <MaterialCommunityIcons name="trash-can-outline" size={22} color={theme.colors.textSecondary} />
+          </TouchableOpacity>
+        )}
+      </View>
+    </Card>
+  );
+}
+
+export function ScheduleScreen({ navigation }: any) {
+  const { state, theme } = useAppContext();
+  const { schedule, scheduleBackup, removeBlock, adoptSuggestion, revertSchedule } = useSchedule();
+  const [view, setView] = useState<'mine' | 'suggested'>('mine');
+  const [busy, setBusy] = useState(false);
+
+  const suggestion = suggestSchedule(schedule, state.settings);
 
   const sorted = [...schedule].sort((a, b) => a.day - b.day || a.start_time.localeCompare(b.start_time));
-  const days = [1, 2, 3, 4, 5, 6, 0].filter(d => sorted.some(b => b.day === d));
+  const suggestedSorted = [...suggestion.blocks].sort((a, b) => a.day - b.day || a.start_time.localeCompare(b.start_time));
+  const visible = view === 'mine' ? sorted : suggestedSorted;
+  const days = [1, 2, 3, 4, 5, 6, 0].filter(d => visible.some(b => b.day === d));
+
+  const handleAdopt = async () => {
+    setBusy(true);
+    try {
+      await adoptSuggestion(suggestion.blocks);
+      setView('mine');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleRevert = async () => {
+    setBusy(true);
+    try {
+      await revertSchedule();
+    } finally {
+      setBusy(false);
+    }
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.colors.bg }]}>
@@ -34,7 +87,53 @@ export function ScheduleScreen({ navigation }: any) {
         </AppText>
       </View>
 
-      {sorted.length === 0 ? (
+      {sorted.length > 0 && (
+        <View style={styles.toggleRow}>
+          {(['mine', 'suggested'] as const).map(v => (
+            <TouchableOpacity
+              key={v}
+              style={[
+                styles.toggleBtn,
+                { borderColor: theme.colors.border },
+                view === v && { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
+              ]}
+              onPress={() => setView(v)}
+            >
+              <AppText variant="label" style={{ color: view === v ? '#FFFFFF' : theme.colors.text }}>
+                {v === 'mine' ? 'Your schedule' : 'Our suggestion'}
+              </AppText>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      {view === 'suggested' && sorted.length > 0 && (
+        <Card style={styles.summaryCard}>
+          <AppText variant="body">{suggestion.summary}</AppText>
+          {suggestion.changes.map((c, i) => (
+            <AppText key={i} variant="bodySmall" color="secondary" style={styles.changeLine}>
+              • {c}
+            </AppText>
+          ))}
+          {suggestion.changes.length > 0 && (
+            <Button
+              title={busy ? 'Applying…' : 'Use this schedule'}
+              onPress={handleAdopt}
+              disabled={busy}
+            />
+          )}
+        </Card>
+      )}
+
+      {view === 'mine' && scheduleBackup && (
+        <TouchableOpacity onPress={handleRevert} disabled={busy}>
+          <AppText variant="bodySmall" color="secondary" style={styles.revertLink}>
+            ← Revert to previous schedule
+          </AppText>
+        </TouchableOpacity>
+      )}
+
+      {visible.length === 0 ? (
         <EmptyState
           icon="calendar-week-outline"
           title="No schedule yet"
@@ -47,25 +146,12 @@ export function ScheduleScreen({ navigation }: any) {
               <AppText variant="label" color="secondary" style={styles.dayTitle}>
                 {DAY_NAMES[day]}
               </AppText>
-              {sorted.filter(b => b.day === day).map(block => (
-                <Card key={block.id} style={styles.blockCard}>
-                  <View style={styles.blockRow}>
-                    <MaterialCommunityIcons
-                      name={(KIND_ICONS[block.kind] ?? KIND_ICONS.other) as any}
-                      size={28}
-                      color={theme.colors.primary}
-                    />
-                    <View style={styles.blockText}>
-                      <AppText variant="body">{block.title}</AppText>
-                      <AppText variant="bodySmall" color="secondary">
-                        {block.start_time.slice(0, 5)} – {block.end_time.slice(0, 5)} · {block.kind}
-                      </AppText>
-                    </View>
-                    <TouchableOpacity onPress={() => removeBlock(block.id)} hitSlop={12}>
-                      <MaterialCommunityIcons name="trash-can-outline" size={22} color={theme.colors.textSecondary} />
-                    </TouchableOpacity>
-                  </View>
-                </Card>
+              {visible.filter(b => b.day === day).map(block => (
+                <BlockRow
+                  key={block.id}
+                  block={block}
+                  onDelete={view === 'mine' ? () => removeBlock(block.id) : undefined}
+                />
               ))}
             </View>
           ))}
@@ -87,7 +173,29 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   header: {
-    marginBottom: 24,
+    marginBottom: 16,
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 16,
+  },
+  toggleBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    alignItems: 'center',
+  },
+  summaryCard: {
+    marginBottom: 16,
+  },
+  changeLine: {
+    marginTop: 6,
+  },
+  revertLink: {
+    textAlign: 'center',
+    marginBottom: 12,
   },
   list: {
     flex: 1,
