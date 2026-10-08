@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppContext } from '../context/AppContext';
@@ -8,6 +8,8 @@ import { Button } from '../components/common/Button';
 import { EmptyState } from '../components/common/EmptyState';
 import { useSchedule } from '../hooks/useSchedule';
 import { suggestSchedule } from '../utils/scheduleSuggest';
+import { analyzeSchedule } from '../utils/scheduleFlags';
+import { generateId } from '../utils/id';
 import { ScheduleBlock, ScheduleKind } from '../types';
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -47,12 +49,25 @@ function BlockRow({ block, onDelete }: { block: ScheduleBlock; onDelete?: () => 
 }
 
 export function ScheduleScreen({ navigation }: any) {
-  const { state, theme } = useAppContext();
+  const { state, dispatch, theme } = useAppContext();
   const { schedule, scheduleBackup, removeBlock, adoptSuggestion, revertSchedule } = useSchedule();
   const [view, setView] = useState<'mine' | 'suggested'>('mine');
   const [busy, setBusy] = useState(false);
 
   const suggestion = suggestSchedule(schedule, state.settings);
+  const flags = analyzeSchedule(schedule, state.settings);
+
+  // Record new flags once per day for the weekly review (PRD 7.4).
+  useEffect(() => {
+    const today = new Date().toISOString().split('T')[0];
+    for (const f of flags) {
+      const seen = state.flagLog.some(e => e.date === today && e.text === f.text);
+      if (!seen) {
+        dispatch({ type: 'LOG_FLAG', payload: { id: generateId(), date: today, text: f.text } });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [schedule]);
 
   const sorted = [...schedule].sort((a, b) => a.day - b.day || a.start_time.localeCompare(b.start_time));
   const suggestedSorted = [...suggestion.blocks].sort((a, b) => a.day - b.day || a.start_time.localeCompare(b.start_time));
@@ -133,6 +148,23 @@ export function ScheduleScreen({ navigation }: any) {
         </TouchableOpacity>
       )}
 
+      {view === 'mine' && flags.length > 0 && (
+        <Card style={{ ...styles.summaryCard, borderLeftWidth: 4, borderLeftColor: theme.colors.warning }}>
+          <View style={styles.flagHeader}>
+            <MaterialCommunityIcons name="flag-outline" size={22} color={theme.colors.warning} />
+            <AppText variant="label">Heads up on your week</AppText>
+          </View>
+          {flags.map(f => (
+            <View key={f.id} style={styles.flagLine}>
+              <AppText variant="bodySmall">• {f.text}</AppText>
+              {!!f.fix && (
+                <AppText variant="bodySmall" color="secondary">{f.fix}</AppText>
+              )}
+            </View>
+          ))}
+        </Card>
+      )}
+
       {visible.length === 0 ? (
         <EmptyState
           icon="calendar-week-outline"
@@ -196,6 +228,15 @@ const styles = StyleSheet.create({
   revertLink: {
     textAlign: 'center',
     marginBottom: 12,
+  },
+  flagHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 8,
+  },
+  flagLine: {
+    marginTop: 8,
   },
   list: {
     flex: 1,

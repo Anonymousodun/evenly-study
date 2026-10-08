@@ -105,5 +105,13 @@ export interface AppState {
   skippedBreaks: SkippedBreak[];
   schedule: ScheduleBlock[];
   scheduleBackup: ScheduleBlock[] | null;
+  flagLog: FlagLogEntry[];
   user: User | null;
+}
+
+// One overload flag recorded for the weekly review (PRD 7.2 + 7.4).
+export interface FlagLogEntry {
+  id: string;
+  date: string; // YYYY-MM-DD
+  text: string;
 }
