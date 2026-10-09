@@ -11,6 +11,7 @@ import { ScheduleFormScreen } from '../screens/ScheduleFormScreen';
 import { WeeklyTrendScreen } from '../screens/WeeklyTrendScreen';
 import { ReviewsScreen } from '../screens/ReviewsScreen';
 import { CrunchScreen } from '../screens/CrunchScreen';
+import { TipsScreen } from '../screens/TipsScreen';
 import { SleepSettingsScreen } from '../screens/SleepSettingsScreen';
 import { AuthScreen } from '../screens/AuthScreen';
 import { AISupportScreen } from '../screens/AISupportScreen';
@@ -52,6 +53,7 @@ export function AppNavigator() {
           <Stack.Screen name="WeeklyTrend" component={WeeklyTrendScreen} />
           <Stack.Screen name="Reviews" component={ReviewsScreen} />
           <Stack.Screen name="Crunch" component={CrunchScreen} />
+          <Stack.Screen name="Tips" component={TipsScreen} />
           <Stack.Screen name="SleepSettings" component={SleepSettingsScreen} />
         </Stack.Navigator>
         </>

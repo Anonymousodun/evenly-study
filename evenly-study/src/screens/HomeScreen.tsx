@@ -15,6 +15,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getScienceNote } from '../utils/science';
 import { checkDistress } from '../utils/distress';
 import { getCrunchStatus, shouldSuggestCrunch } from '../utils/crunch';
+import { getTipForSuggestion } from '../utils/tips';
 
 function greeting(): string {
   const hour = new Date().getHours();
@@ -141,6 +142,8 @@ export function HomeScreen({ navigation }: any) {
         <SuggestionCard
           text={activeSuggestion.text}
           whyText={getScienceNote(activeSuggestion.type)}
+          topicId={getTipForSuggestion(activeSuggestion.type)}
+          onOpenTopic={(topicId: string) => navigation.navigate('Tips', { topicId })}
           onApprove={() => approve(activeSuggestion.id)}
           onDismiss={() => dismiss(activeSuggestion.id)}
         />
@@ -148,8 +151,17 @@ export function HomeScreen({ navigation }: any) {
         <SuggestionCard
           text={getBurnoutSuggestion(state.burnoutLevel)}
           whyText={getScienceNote('balanced-week')}
+          topicId={getTipForSuggestion('balanced-week')}
+          onOpenTopic={(topicId: string) => navigation.navigate('Tips', { topicId })}
         />
       )}
+
+      <TouchableOpacity onPress={() => navigation.navigate('Tips')} activeOpacity={0.8}>
+        <Card>
+          <AppText variant="label" color="secondary">60-Second Tips — tap to browse</AppText>
+          <AppText variant="body">Sleep, breaks, stress and focus, one minute at a time.</AppText>
+        </Card>
+      </TouchableOpacity>
 
       <View style={{ height: 100 }} />
     </ScrollView>

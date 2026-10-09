@@ -7,12 +7,14 @@ import { Button } from '../common/Button';
 interface SuggestionCardProps {
   text: string;
   whyText?: string;
+  topicId?: string;
+  onOpenTopic?: (topicId: string) => void;
   onWhy?: () => void;
   onApprove?: () => void;
   onDismiss?: () => void;
 }
 
-export function SuggestionCard({ text, whyText, onWhy, onApprove, onDismiss }: SuggestionCardProps) {
+export function SuggestionCard({ text, whyText, topicId, onOpenTopic, onWhy, onApprove, onDismiss }: SuggestionCardProps) {
   const { theme } = useAppContext();
   const [showWhy, setShowWhy] = useState(false);
 
@@ -30,6 +32,14 @@ export function SuggestionCard({ text, whyText, onWhy, onApprove, onDismiss }: S
         <AppText variant="caption" color="secondary" style={styles.whyText}>
           {whyText}
         </AppText>
+      )}
+
+      {showWhy && !!topicId && !!onOpenTopic && (
+        <TouchableOpacity onPress={() => onOpenTopic(topicId)}>
+          <AppText variant="label" style={{ ...styles.topicLink, color: theme.colors.primary }}>
+            Read the 60-second version →
+          </AppText>
+        </TouchableOpacity>
       )}
 
       <View style={styles.actions}>
@@ -69,6 +79,9 @@ const styles = StyleSheet.create({
   whyText: {
     marginTop: 12,
     fontStyle: 'italic',
+  },
+  topicLink: {
+    marginTop: 8,
   },
   actions: {
     flexDirection: 'row',

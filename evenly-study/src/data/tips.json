@@ -1,0 +1,86 @@
+[
+  {
+    "id": "sleep-memory",
+    "category": "Sleep",
+    "title": "Why sleep matters for memory",
+    "readSeconds": 30,
+    "body": "While you sleep, your brain files away what you studied into long-term memory. Cutting sleep short the night before an exam deletes more than it saves. Protect the night, and the day works better."
+  },
+  {
+    "id": "sleep-schedule",
+    "category": "Sleep",
+    "title": "A steady bedtime beats a long lie-in",
+    "readSeconds": 30,
+    "body": "Going to bed at the same time each night steadies your body clock, which lifts mood and focus. One late night takes several days to recover from. Consistency matters more than total hours."
+  },
+  {
+    "id": "wind-down",
+    "category": "Sleep",
+    "title": "Power down before bed",
+    "readSeconds": 20,
+    "body": "Screens and heavy revision keep your brain in daytime mode. Dim things down for the last half hour — light reading, a tidy desk, slow breathing — and sleep comes faster."
+  },
+  {
+    "id": "rest-eyes",
+    "category": "Breaks",
+    "title": "Rest your eyes in 20 seconds",
+    "readSeconds": 20,
+    "body": "Staring at a screen tires the tiny muscles inside your eyes. Look at something far away for 20 seconds. Distance relaxes them, and the headache risk drops with it."
+  },
+  {
+    "id": "stretch-reset",
+    "category": "Breaks",
+    "title": "Stretch between sessions",
+    "readSeconds": 30,
+    "body": "Standing up and stretching pushes fresh blood to your brain and clears the fog of sitting still. Shoulders, neck, a slow twist — two minutes is enough to feel the difference."
+  },
+  {
+    "id": "walk-reset",
+    "category": "Breaks",
+    "title": "A 10-minute walk reset",
+    "readSeconds": 30,
+    "body": "A short walk measurably boosts creative thinking and burns off restless energy. No destination needed — around the block counts. Leave the phone behind if you can."
+  },
+  {
+    "id": "box-breathing",
+    "category": "Stress",
+    "title": "Box breathing in a minute",
+    "readSeconds": 45,
+    "body": "Breathe in for 4 counts, hold for 4, out for 4, hold for 4. Repeat four times. Slow exhales tell your nervous system the emergency is over, and tension drops within minutes."
+  },
+  {
+    "id": "chunking",
+    "category": "Stress",
+    "title": "Split it to shrink it",
+    "readSeconds": 30,
+    "body": "A huge task feels threatening, and threat freezes the brain. Split it into pieces so small they feel silly. Starting is the hard part — smallness makes starting easy."
+  },
+  {
+    "id": "progress-perfection",
+    "category": "Stress",
+    "title": "Progress over perfection",
+    "readSeconds": 30,
+    "body": "Chasing perfect first drafts burns energy and delays everything. Aim for done, then improve. A finished rough draft beats a perfect blank page every time."
+  },
+  {
+    "id": "focus-blocks",
+    "category": "Focus",
+    "title": "Work in 25-minute blocks",
+    "readSeconds": 30,
+    "body": "Attention runs in cycles of about 25 minutes before it fades. Work with the cycle: one block, one short break. Four blocks earn a longer rest."
+  },
+  {
+    "id": "single-task",
+    "category": "Focus",
+    "title": "One thing at a time",
+    "readSeconds": 30,
+    "body": "Switching between tasks can cost up to 40% of productive time. Pick one task, silence the rest, finish or time-box it. Your brain thanks you with speed."
+  },
+  {
+    "id": "breaks-are-focus",
+    "category": "Focus",
+    "title": "Breaks are part of focus",
+    "readSeconds": 30,
+    "body": "Skipping breaks doesn't bank focus — it borrows from tomorrow. Short, real breaks keep each session sharp. Rest is part of the work, not a reward for it."
+  }
+]
