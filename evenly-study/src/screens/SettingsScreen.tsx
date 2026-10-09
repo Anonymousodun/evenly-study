@@ -112,6 +112,13 @@ export function SettingsScreen({ navigation }: any) {
           <AppText variant="body">Past reviews</AppText>
           <MaterialCommunityIcons name="chevron-right" size={22} color={theme.colors.textSecondary} />
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.linkRow}
+          onPress={() => navigation.navigate('Share')}
+        >
+          <AppText variant="body">Share with an advisor</AppText>
+          <MaterialCommunityIcons name="chevron-right" size={22} color={theme.colors.textSecondary} />
+        </TouchableOpacity>
       </Card>
 
       <Card>
