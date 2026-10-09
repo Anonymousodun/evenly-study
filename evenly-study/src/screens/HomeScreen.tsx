@@ -14,6 +14,7 @@ import { generateWeeklySummary } from '../utils/weeklySummary';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { getScienceNote } from '../utils/science';
 import { checkDistress } from '../utils/distress';
+import { getCrunchStatus, shouldSuggestCrunch } from '../utils/crunch';
 
 function greeting(): string {
   const hour = new Date().getHours();
@@ -23,13 +24,15 @@ function greeting(): string {
 }
 
 export function HomeScreen({ navigation }: any) {
-  const { state, theme } = useAppContext();
+  const { state, dispatch, theme } = useAppContext();
   const { suggestions, approve, dismiss } = useSuggestions();
   const sleepCheck = checkSleepProtection(state);
   const summary = generateWeeklySummary(state);
   const activeSuggestion = suggestions[0] ?? null;
   const distress = checkDistress(state);
   const [distressDismissed, setDistressDismissed] = useState(false);
+  const crunch = getCrunchStatus(state.settings);
+  const crunchSuggest = shouldSuggestCrunch(state);
 
   const today = new Date().toISOString().split('T')[0];
   const checkedInToday = state.dailyCheckIns.some(c => c.date === today);
@@ -66,6 +69,38 @@ export function HomeScreen({ navigation }: any) {
         <Card>
           <AppText variant="body">Haven't checked in today — it takes 5 seconds.</AppText>
           <Button title="Check in now" onPress={() => navigation.navigate('CheckIn')} variant="secondary" />
+        </Card>
+      )}
+
+      {crunch.phase !== 'off' && (
+        <TouchableOpacity onPress={() => navigation.navigate('Crunch')} activeOpacity={0.8}>
+          <Card>
+            <AppText variant="label" color="secondary">
+              {crunch.phase === 'active' ? 'Crunch mode — essentials protected' : 'Recovery — easing back'}
+            </AppText>
+            <AppText variant="body">
+              {crunch.phase === 'active'
+                ? `${crunch.daysLeft} day${crunch.daysLeft === 1 ? '' : 's'} left. Short breaks, minimum sleep, real meals.`
+                : `${crunch.daysLeft} day${crunch.daysLeft === 1 ? '' : 's'} left. Restorative breaks, earlier bedtime.`}
+            </AppText>
+          </Card>
+        </TouchableOpacity>
+      )}
+
+      {crunchSuggest && (
+        <Card>
+          <AppText variant="label" color="secondary">Heavy stretch?</AppText>
+          <AppText variant="body" style={styles.bannerText}>
+            You've had some heavy days. Crunch mode can protect the essentials for a while.
+          </AppText>
+          <View style={styles.distressActions}>
+            <Button title="Tell me more" onPress={() => navigation.navigate('Crunch')} variant="secondary" />
+            <Button
+              title="No thanks"
+              onPress={() => dispatch({ type: 'UPDATE_SETTINGS', payload: { crunchDeclined: true } })}
+              variant="text"
+            />
+          </View>
         </Card>
       )}
 

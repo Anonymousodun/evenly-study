@@ -1,4 +1,5 @@
 import { AppState, Settings } from '../types';
+import { getCrunchStatus } from './crunch';
 
 // Builds the weekly review (PRD 7.4): under a minute to read, leads with
 // what went well, summarizes sleep/breaks/workload/best day plus any
@@ -68,14 +69,21 @@ export function buildWeekReview(state: AppState): WeekReview {
   const highlights: string[] = [];
   highlights.push(
     avgMood !== null ? `Mood averaged ${avgMood.toFixed(1)} out of 5.` : 'No mood check-ins logged.'
-  );
-  highlights.push(
+  );  highlights.push(
     avgRest !== null ? `Rest averaged ${avgRest.toFixed(1)} out of 5.` : 'No sleep check-ins logged.'
   );
   highlights.push(
     `${tasksDone.length} done, ${tasksOpen.length} still open.`
   );
   if (bestDay) highlights.push(`${bestDay} was your best day.`);
+  const crunch = getCrunchStatus(state.settings);
+  if (crunch.phase !== 'off') {
+    highlights.push(
+      crunch.phase === 'active'
+        ? 'Crunch mode is on — essentials first, the rest can wait.'
+        : 'You came out of crunch mode recently — how are you feeling?'
+    );
+  }
 
   // One small suggestion, highest priority first. Each applies in one tap.
   let suggestion: ReviewSuggestion;

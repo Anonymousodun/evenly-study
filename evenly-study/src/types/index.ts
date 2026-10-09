@@ -85,6 +85,8 @@ export interface Settings {
   setupComplete: boolean;
   reviewDay: string; // e.g. 'Sunday'
   reviewReminder: boolean;
+  crunch: { start: string; end: string } | null;
+  crunchDeclined: boolean;
 }
 
 export interface Suggestion {

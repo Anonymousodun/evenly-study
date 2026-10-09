@@ -13,6 +13,8 @@ const defaultSettings: Settings = {
   setupComplete: false,
   reviewDay: 'Sunday',
   reviewReminder: true,
+  crunch: null,
+  crunchDeclined: false,
 };
 
 const initialState: AppState = {

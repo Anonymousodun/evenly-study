@@ -9,6 +9,7 @@ import { EmptyState } from '../components/common/EmptyState';
 import { useSchedule } from '../hooks/useSchedule';
 import { suggestSchedule } from '../utils/scheduleSuggest';
 import { analyzeSchedule } from '../utils/scheduleFlags';
+import { getEffectiveBedtime } from '../utils/crunch';
 import { generateId } from '../utils/id';
 import { ScheduleBlock, ScheduleKind } from '../types';
 
@@ -54,8 +55,8 @@ export function ScheduleScreen({ navigation }: any) {
   const [view, setView] = useState<'mine' | 'suggested'>('mine');
   const [busy, setBusy] = useState(false);
 
-  const suggestion = suggestSchedule(schedule, state.settings);
-  const flags = analyzeSchedule(schedule, state.settings);
+  const suggestion = suggestSchedule(schedule, { ...state.settings, targetBedtime: getEffectiveBedtime(state.settings) });
+  const flags = analyzeSchedule(schedule, { ...state.settings, targetBedtime: getEffectiveBedtime(state.settings) });
 
   // Record new flags once per day for the weekly review (PRD 7.4).
   useEffect(() => {
