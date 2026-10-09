@@ -87,6 +87,7 @@ export interface Settings {
   reviewReminder: boolean;
   crunch: { start: string; end: string } | null;
   crunchDeclined: boolean;
+  sleepTargetHours: number; // default 8, adjustable
 }
 
 export interface Suggestion {

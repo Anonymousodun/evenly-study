@@ -1,5 +1,6 @@
 import { AppState, Settings } from '../types';
 import { getCrunchStatus } from './crunch';
+import { currentWeekDebt, chronicSleepNote } from './sleepScore';
 
 // Builds the weekly review (PRD 7.4): under a minute to read, leads with
 // what went well, summarizes sleep/breaks/workload/best day plus any
@@ -76,6 +77,13 @@ export function buildWeekReview(state: AppState): WeekReview {
     `${tasksDone.length} done, ${tasksOpen.length} still open.`
   );
   if (bestDay) highlights.push(`${bestDay} was your best day.`);
+  const target = state.settings.sleepTargetHours ?? 8;
+  const debt = currentWeekDebt(state.sleep, target);
+  if (debt.shortNights > 0) {
+    highlights.push(`About ${debt.debtHours}h of sleep borrowed this week — it resets fresh next week.`);
+  }
+  const chronic = chronicSleepNote(state.sleep, target);
+  if (chronic) highlights.push(chronic);
   const crunch = getCrunchStatus(state.settings);
   if (crunch.phase !== 'off') {
     highlights.push(

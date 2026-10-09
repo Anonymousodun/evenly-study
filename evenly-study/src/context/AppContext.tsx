@@ -15,6 +15,7 @@ const defaultSettings: Settings = {
   reviewReminder: true,
   crunch: null,
   crunchDeclined: false,
+  sleepTargetHours: 8,
 };
 
 const initialState: AppState = {

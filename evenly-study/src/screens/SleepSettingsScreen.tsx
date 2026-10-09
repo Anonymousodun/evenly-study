@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Switch } from 'react-native';
+import { View, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
 import { Card } from '../components/common/Card';
 import { useNotifications } from '../hooks/useNotifications';
 import { calculateCutoffTime, getWindDownTime } from '../utils/sleepProtection';
+import { scoreNight, currentWeekDebt, chronicSleepNote } from '../utils/sleepScore';
 
 function formatTime(date: Date): string {
   return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
@@ -16,6 +18,14 @@ export function SleepSettingsScreen() {
 
   const cutoff = calculateCutoffTime(state.settings.targetBedtime);
   const windDown = getWindDownTime(state.settings.targetBedtime);
+  const target = state.settings.sleepTargetHours;
+
+  const lastNight = state.sleep.length > 0
+    ? [...state.sleep].sort((a, b) => b.date.localeCompare(a.date))[0]
+    : null;
+  const lastLabel = lastNight ? scoreNight(lastNight, target) : null;
+  const debt = currentWeekDebt(state.sleep, target);
+  const chronic = chronicSleepNote(state.sleep, target);
 
   const recentShortNights = state.sleep
     .slice(-7)
@@ -49,6 +59,44 @@ export function SleepSettingsScreen() {
         <AppText variant="h2" style={styles.bedtime}>{state.settings.targetBedtime}</AppText>
         <AppText variant="caption" color="secondary">We'll remind you to wind down before this time</AppText>
       </Card>
+
+      <Card>
+        <AppText variant="label" color="secondary">Sleep target</AppText>
+        <View style={styles.settingRow}>
+          <TouchableOpacity
+            onPress={() => dispatch({ type: 'UPDATE_SETTINGS', payload: { sleepTargetHours: Math.max(6, target - 0.5) } })}
+            hitSlop={12}
+          >
+            <MaterialCommunityIcons name="minus-circle-outline" size={28} color={theme.colors.primary} />
+          </TouchableOpacity>
+          <AppText variant="h2">{target}h a night</AppText>
+          <TouchableOpacity
+            onPress={() => dispatch({ type: 'UPDATE_SETTINGS', payload: { sleepTargetHours: Math.min(10, target + 0.5) } })}
+            hitSlop={12}
+          >
+            <MaterialCommunityIcons name="plus-circle-outline" size={28} color={theme.colors.primary} />
+          </TouchableOpacity>
+        </View>
+      </Card>
+
+      {lastLabel && (
+        <Card>
+          <AppText variant="label" color="secondary">Last night</AppText>
+          <AppText variant="h2" style={styles.bedtime}>{lastLabel}</AppText>
+          {debt.shortNights > 0 && (
+            <AppText variant="bodySmall" color="secondary">
+              About {debt.debtHours}h borrowed this week — it resets every week.
+            </AppText>
+          )}
+        </Card>
+      )}
+
+      {chronic && (
+        <Card>
+          <AppText variant="label" color="secondary">💤 Sleep note</AppText>
+          <AppText variant="bodySmall" style={styles.description}>{chronic}</AppText>
+        </Card>
+      )}
 
       <Card>
         <AppText variant="label" color="secondary">Work Cutoff</AppText>
