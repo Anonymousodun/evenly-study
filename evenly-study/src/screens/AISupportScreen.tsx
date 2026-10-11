@@ -20,7 +20,7 @@ const GREETING: Message = {
   id: 'greeting',
   from: 'ai',
   crisis: false,
-  text: "Hi! I'm Evenly AI. I can help with study and rest advice — sleep, focus, exams, breaks. I'm not a therapist and I can't replace a real person. What's on your mind?",
+  text: "Hi! I'm Evenly AI. I can help with study and rest advice , sleep, focus, exams, breaks. I'm not a therapist and I can't replace a real person. What's on your mind?",
 };
 
 export function AISupportScreen({ navigation }: any) {
@@ -54,7 +54,7 @@ export function AISupportScreen({ navigation }: any) {
         </View>
         <View>
           <AppText variant="h1">Evenly AI</AppText>
-          <AppText variant="caption" color="secondary">Study advice only — not therapy</AppText>
+          <AppText variant="caption" color="secondary">Study advice only , not therapy</AppText>
         </View>
       </View>
 

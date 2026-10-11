@@ -28,7 +28,7 @@ export function CheckInScreen({ navigation }: any) {
       await addCheckIn(today, score);
       setToast('Checked in');
     } catch {
-      setToast('Saved on this device — will sync later');
+      setToast('Saved on this device , will sync later');
     }
     setTimeout(() => navigation.navigate('Home'), 800);
   };
@@ -38,7 +38,7 @@ export function CheckInScreen({ navigation }: any) {
     try {
       await addSleepEntry(today, bedtime, wakeTime, score);
     } catch {
-      // Offline — local state still updates via sync later.
+      // Offline , local state still updates via sync later.
     }
     const message = getReinforcementMessage(state);
     setToast(message || 'Sleep logged');

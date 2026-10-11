@@ -54,13 +54,13 @@ export function generateWeeklySummary(state: AppState): WeeklySummary {
   if (greenDays >= 5) {
     insight = 'You had a balanced week. Your future self thanks you.';
   } else if (redDays >= 3) {
-    insight = 'A tough week. Consider lightening next week — rest is part of the work.';
+    insight = 'A tough week. Consider lightening next week , rest is part of the work.';
   } else if (avgSleep !== null && avgSleep < 6) {
     insight = 'Your sleep has been short. Protecting bedtime could help next week.';
   } else if (avgMood !== null && avgMood <= 2.5) {
-    insight = 'Your mood has been low. Be gentle with yourself — small breaks help.';
+    insight = 'Your mood has been low. Be gentle with yourself , small breaks help.';
   } else {
-    insight = 'A mixed week. Keep checking in — awareness is the first step.';
+    insight = 'A mixed week. Keep checking in , awareness is the first step.';
   }
 
   return { days, greenDays, yellowDays, redDays, avgMood, avgSleep, insight };

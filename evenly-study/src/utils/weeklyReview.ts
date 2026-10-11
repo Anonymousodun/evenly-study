@@ -61,8 +61,8 @@ export function buildWeekReview(state: AppState): WeekReview {
 
   const wins: string[] = [];
   if (checkIns.length >= 5) wins.push(`You checked in ${checkIns.length} days this week.`);
-  else if (checkIns.length > 0) wins.push('You showed up to check in — that counts.');
-  if (avgRest !== null && avgRest >= 3.5) wins.push(`Solid rest — averaging ${avgRest.toFixed(1)} out of 5.`);
+  else if (checkIns.length > 0) wins.push('You showed up to check in , that counts.');
+  if (avgRest !== null && avgRest >= 3.5) wins.push(`Solid rest , averaging ${avgRest.toFixed(1)} out of 5.`);
   if (tasksDone.length > 0) wins.push(`You finished ${tasksDone.length} task${tasksDone.length === 1 ? '' : 's'}.`);
   if (skips === 0 && checkIns.length > 0) wins.push('You took your breaks when they came.');
   if (wins.length === 0) wins.push('A quiet week is still a week you got through.');
@@ -80,7 +80,7 @@ export function buildWeekReview(state: AppState): WeekReview {
   const target = state.settings.sleepTargetHours ?? 8;
   const debt = currentWeekDebt(state.sleep, target);
   if (debt.shortNights > 0) {
-    highlights.push(`About ${debt.debtHours}h of sleep borrowed this week — it resets fresh next week.`);
+    highlights.push(`About ${debt.debtHours}h of sleep borrowed this week , it resets fresh next week.`);
   }
   const chronic = chronicSleepNote(state.sleep, target);
   if (chronic) highlights.push(chronic);
@@ -88,8 +88,8 @@ export function buildWeekReview(state: AppState): WeekReview {
   if (crunch.phase !== 'off') {
     highlights.push(
       crunch.phase === 'active'
-        ? 'Crunch mode is on — essentials first, the rest can wait.'
-        : 'You came out of crunch mode recently — how are you feeling?'
+        ? 'Crunch mode is on , essentials first, the rest can wait.'
+        : 'You came out of crunch mode recently , how are you feeling?'
     );
   }
 
@@ -111,7 +111,7 @@ export function buildWeekReview(state: AppState): WeekReview {
       setting: { breakLength: state.settings.breakLength + 5 },
     };
   } else {
-    suggestion = { text: 'Keep your rhythm — nothing needs changing.' };
+    suggestion = { text: 'Keep your rhythm , nothing needs changing.' };
   }
 
   const summary = wins[0];

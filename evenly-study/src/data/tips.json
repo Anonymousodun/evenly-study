@@ -18,7 +18,7 @@
     "category": "Sleep",
     "title": "Power down before bed",
     "readSeconds": 20,
-    "body": "Screens and heavy revision keep your brain in daytime mode. Dim things down for the last half hour — light reading, a tidy desk, slow breathing — and sleep comes faster."
+    "body": "Screens and heavy revision keep your brain in daytime mode. Dim things down for the last half hour , light reading, a tidy desk, slow breathing , and sleep comes faster."
   },
   {
     "id": "rest-eyes",
@@ -32,14 +32,14 @@
     "category": "Breaks",
     "title": "Stretch between sessions",
     "readSeconds": 30,
-    "body": "Standing up and stretching pushes fresh blood to your brain and clears the fog of sitting still. Shoulders, neck, a slow twist — two minutes is enough to feel the difference."
+    "body": "Standing up and stretching pushes fresh blood to your brain and clears the fog of sitting still. Shoulders, neck, a slow twist , two minutes is enough to feel the difference."
   },
   {
     "id": "walk-reset",
     "category": "Breaks",
     "title": "A 10-minute walk reset",
     "readSeconds": 30,
-    "body": "A short walk measurably boosts creative thinking and burns off restless energy. No destination needed — around the block counts. Leave the phone behind if you can."
+    "body": "A short walk measurably boosts creative thinking and burns off restless energy. No destination needed , around the block counts. Leave the phone behind if you can."
   },
   {
     "id": "box-breathing",
@@ -53,7 +53,7 @@
     "category": "Stress",
     "title": "Split it to shrink it",
     "readSeconds": 30,
-    "body": "A huge task feels threatening, and threat freezes the brain. Split it into pieces so small they feel silly. Starting is the hard part — smallness makes starting easy."
+    "body": "A huge task feels threatening, and threat freezes the brain. Split it into pieces so small they feel silly. Starting is the hard part , smallness makes starting easy."
   },
   {
     "id": "progress-perfection",
@@ -81,6 +81,6 @@
     "category": "Focus",
     "title": "Breaks are part of focus",
     "readSeconds": 30,
-    "body": "Skipping breaks doesn't bank focus — it borrows from tomorrow. Short, real breaks keep each session sharp. Rest is part of the work, not a reward for it."
+    "body": "Skipping breaks doesn't bank focus , it borrows from tomorrow. Short, real breaks keep each session sharp. Rest is part of the work, not a reward for it."
   }
 ]

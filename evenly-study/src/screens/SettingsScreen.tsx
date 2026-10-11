@@ -7,7 +7,7 @@ import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { signOut } from '../api/auth';
 
-const REGIONS = ['US', 'UK', 'CA', 'AU'];
+const REGIONS = ['NG', 'US', 'UK', 'CA', 'AU'];
 const REVIEW_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export function SettingsScreen({ navigation }: any) {

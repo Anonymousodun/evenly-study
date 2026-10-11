@@ -31,7 +31,7 @@ export async function signOut(): Promise<void> {
   try {
     await api.post('/api/auth/sign-out', {});
   } catch {
-    // Ignore — clearing the local token is what matters.
+    // Ignore , clearing the local token is what matters.
   }
   setSessionToken(null);
 }

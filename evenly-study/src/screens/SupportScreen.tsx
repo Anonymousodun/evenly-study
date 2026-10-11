@@ -1,10 +1,11 @@
-import React from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
+import { Input } from '../components/common/Input';
 import { SupportCard } from '../components/support/SupportCard';
 import supportResources from '../data/supportResources.json';
 
@@ -19,8 +20,95 @@ interface Resource {
 
 const resourcesByRegion = supportResources as Record<string, Resource[]>;
 
+async function dial(raw: string, onError: (msg: string) => void) {
+  const match = raw.match(/[\d][\d\s\-()]{2,}[\d]/);
+  if (!match) {
+    onError('No callable number found here.');
+    return;
+  }
+  const url = `tel:${match[0].replace(/[^+\d]/g, '')}`;
+  try {
+    const ok = await Linking.canOpenURL(url);
+    if (ok) {
+      await Linking.openURL(url);
+    } else {
+      onError('Calling is not available on this device.');
+    }
+  } catch {
+    onError('Could not start the call.');
+  }
+}
+
+function ContactEditor({
+  title,
+  subtitle,
+  name,
+  phone,
+  onSave,
+}: {
+  title: string;
+  subtitle: string;
+  name: string;
+  phone: string;
+  onSave: (name: string, phone: string) => void;
+}) {
+  const { theme } = useAppContext();
+  const [editing, setEditing] = useState(false);
+  const [draftName, setDraftName] = useState(name);
+  const [draftPhone, setDraftPhone] = useState(phone);
+  const [error, setError] = useState('');
+
+  if (!editing && phone) {
+    return (
+      <Card>
+        <AppText variant="label" color="secondary">{title}</AppText>
+        <AppText variant="body" style={styles.savedName}>{name || 'Saved contact'}</AppText>
+        <AppText variant="bodySmall" color="secondary">{phone}</AppText>
+        <View style={styles.contactActions}>
+          <Button
+            title="Call now"
+            variant="secondary"
+            style={styles.contactBtn}
+            onPress={() => dial(phone, setError)}
+          />
+          <Button
+            title="Edit"
+            variant="text"
+            onPress={() => { setDraftName(name); setDraftPhone(phone); setEditing(true); }}
+          />
+        </View>
+        {!!error && <AppText variant="bodySmall" style={styles.error}>{error}</AppText>}
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <AppText variant="label" color="secondary">{title}</AppText>
+      <AppText variant="bodySmall" style={styles.description}>{subtitle}</AppText>
+      <Input label="Name" value={draftName} onChangeText={setDraftName} placeholder="e.g., Mrs. Ade, +234..." />
+      <Input
+        label="Phone number"
+        value={draftPhone}
+        onChangeText={setDraftPhone}
+        placeholder="e.g., 0803 123 4567"
+        keyboardType="phone-pad"
+      />
+      <Button
+        title="Save contact"
+        onPress={() => { onSave(draftName.trim(), draftPhone.trim()); setEditing(false); setError(''); }}
+      />
+      {phone !== '' && (
+        <Button title="Cancel" variant="text" onPress={() => setEditing(false)} />
+      )}
+      {!!error && <AppText variant="bodySmall" style={styles.error}>{error}</AppText>}
+    </Card>
+  );
+}
+
 export function SupportScreen({ navigation }: any) {
-  const { state, theme } = useAppContext();
+  const { state, dispatch, theme } = useAppContext();
+  const [callError, setCallError] = useState('');
   const region = state.settings.region || 'US';
   const helplines = resourcesByRegion[region] ?? resourcesByRegion['US'] ?? [];
 
@@ -39,34 +127,40 @@ export function SupportScreen({ navigation }: any) {
             </View>
             <View style={styles.aiInfo}>
               <AppText variant="body">Speak to our AI agent</AppText>
-              <AppText variant="caption" color="secondary">Quick study advice, any time — not therapy</AppText>
+              <AppText variant="caption" color="secondary">Quick study advice, any time, not therapy</AppText>
             </View>
             <MaterialCommunityIcons name="chevron-right" size={24} color={theme.colors.textSecondary} />
           </View>
         </Card>
       </TouchableOpacity>
 
-      <Card>
-        <AppText variant="label" color="secondary">Campus Counselor</AppText>
-        <AppText variant="bodySmall" style={styles.description}>Free, confidential support for students</AppText>
-        <Button title="Contact" variant="secondary" style={styles.contactBtn} />
-      </Card>
+      <ContactEditor
+        title="Campus Counselor"
+        subtitle="Free, confidential support for students. Save the number to call in one tap."
+        name={state.settings.counselorName}
+        phone={state.settings.counselorPhone}
+        onSave={(name, phone) => dispatch({ type: 'UPDATE_SETTINGS', payload: { counselorName: name, counselorPhone: phone } })}
+      />
 
-      <Card>
-        <AppText variant="label" color="secondary">Trusted Friend or Family</AppText>
-        <AppText variant="bodySmall" style={styles.description}>Someone you know and trust</AppText>
-        <Button title="Choose Contact" variant="secondary" style={styles.contactBtn} />
-      </Card>
+      <ContactEditor
+        title="Trusted Friend or Family"
+        subtitle="Someone you know and trust. Save the number to call in one tap."
+        name={state.settings.trustedName}
+        phone={state.settings.trustedPhone}
+        onSave={(name, phone) => dispatch({ type: 'UPDATE_SETTINGS', payload: { trustedName: name, trustedPhone: phone } })}
+      />
 
       <AppText variant="label" color="secondary" style={styles.sectionLabel}>
         Helplines ({region})
       </AppText>
+      {!!callError && <AppText variant="bodySmall" style={styles.error}>{callError}</AppText>}
       {helplines.map(r => (
         <SupportCard
           key={r.id}
           icon={r.icon}
           label={r.label}
           contact={r.contact}
+          onPress={r.icon === 'phone-outline' ? () => dial(r.contact, setCallError) : undefined}
         />
       ))}
 
@@ -94,8 +188,14 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 12,
   },
+  savedName: {
+    marginTop: 4,
+  },
+  contactActions: {
+    marginTop: 12,
+  },
   contactBtn: {
-    marginTop: 8,
+    marginBottom: 4,
   },
   sectionLabel: {
     marginBottom: 12,
@@ -119,5 +219,9 @@ const styles = StyleSheet.create({
   },
   aiInfo: {
     flex: 1,
+  },
+  error: {
+    color: '#B87333',
+    marginTop: 8,
   },
 });

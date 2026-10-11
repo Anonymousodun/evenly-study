@@ -66,7 +66,7 @@ export function useTasks() {
     try {
       await api.del(`/api/tasks/${taskId}`);
     } catch {
-      // Offline — still remove locally.
+      // Offline , still remove locally.
     }
     dispatch({ type: 'DELETE_TASK', payload: taskId });
   };

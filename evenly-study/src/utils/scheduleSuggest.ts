@@ -1,7 +1,7 @@
 import { ScheduleBlock, Settings } from '../types';
 
 // Suggests a balanced version of the student's schedule.
-// Rules (study blocks only — classes, work and other commitments are never touched):
+// Rules (study blocks only , classes, work and other commitments are never touched):
 //  1. Study blocks longer than 90 minutes are split with 10-minute breaks.
 //  2. Study blocks running past the sleep cutoff (bedtime minus 30 min wind-down)
 //     are shortened to end at the cutoff.
@@ -58,12 +58,12 @@ export function suggestSchedule(blocks: ScheduleBlock[], settings: Settings): Sc
     }
     if (start >= cutoff || end - start < MIN_KEPT_MIN) {
       if (end - start < MIN_KEPT_MIN && start < cutoff) {
-        // Too short to keep — drop with a note instead of scheduling a useless stub.
-        changes.push(`Removed "${b.title}" on ${DAY_NAMES[b.day]} — too little time left before bedtime. Consider another day.`);
+        // Too short to keep , drop with a note instead of scheduling a useless stub.
+        changes.push(`Removed "${b.title}" on ${DAY_NAMES[b.day]} , too little time left before bedtime. Consider another day.`);
         continue;
       }
       if (start >= cutoff) {
-        changes.push(`Moved "${b.title}" on ${DAY_NAMES[b.day]} out — it ran past bedtime. Consider another day.`);
+        changes.push(`Moved "${b.title}" on ${DAY_NAMES[b.day]} out , it ran past bedtime. Consider another day.`);
         continue;
       }
     }
@@ -110,7 +110,7 @@ export function suggestSchedule(blocks: ScheduleBlock[], settings: Settings): Sc
   if (shortened > 0) parts.push(`shortened ${shortened} late block${shortened === 1 ? '' : 's'} for bedtime`);
   const summary = parts.length > 0
     ? `We ${parts.join(' and ')}.`
-    : 'Your schedule already looks balanced — no changes suggested.';
+    : 'Your schedule already looks balanced , no changes suggested.';
 
   return { blocks: out, changes, summary };
 }

@@ -58,7 +58,7 @@ export function chronicSleepNote(entries: SleepEntry[], targetHours: number): st
     if (avg < targetHours - 1) lowWeeks += 1;
   }
   if (lowWeeks >= 3) {
-    return `You've had low sleep for ${lowWeeks} weeks running — worth a kind look at your evenings.`;
+    return `You've had low sleep for ${lowWeeks} weeks running , worth a kind look at your evenings.`;
   }
   return null;
 }

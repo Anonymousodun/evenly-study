@@ -16,6 +16,10 @@ const defaultSettings: Settings = {
   crunch: null,
   crunchDeclined: false,
   sleepTargetHours: 8,
+  counselorName: '',
+  counselorPhone: '',
+  trustedName: '',
+  trustedPhone: '',
 };
 
 const initialState: AppState = {

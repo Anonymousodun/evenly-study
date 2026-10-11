@@ -13,7 +13,7 @@ export function ShareScreen() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    loadLinks().catch(() => setError('Could not load links — is the server running?'));
+    loadLinks().catch(() => setError('Could not load links , is the server running?'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -22,7 +22,7 @@ export function ShareScreen() {
     try {
       await createLink();
     } catch {
-      setError('Could not create a link — is the server running?');
+      setError('Could not create a link , is the server running?');
     }
   };
 
@@ -37,7 +37,7 @@ export function ShareScreen() {
 
       <Card>
         <AppText variant="bodySmall" color="secondary">
-          Advisors see totals only — never your individual check-ins, sleep times, or notes.
+          Advisors see totals only , never your individual check-ins, sleep times, or notes.
           Your advisor can open the link once this server has a public address.
         </AppText>
       </Card>

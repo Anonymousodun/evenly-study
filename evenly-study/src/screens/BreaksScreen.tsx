@@ -57,11 +57,11 @@ export function BreaksScreen({ navigation }: any) {
     }
     if (mode === 'focus') {
       setMode('idle');
-      setToast('Focus session done — pick a break');
+      setToast('Focus session done , pick a break');
     } else {
       setMode('idle');
       setSelectedBreak(null);
-      setToast('Nice — rest is part of the work');
+      setToast('Nice , rest is part of the work');
     }
   };
 
@@ -87,7 +87,7 @@ export function BreaksScreen({ navigation }: any) {
     scheduleBreakReminder(15);
     setMode('idle');
     setSelectedBreak(null);
-    setToast("Logged quietly — we'll nudge you in a bit");
+    setToast("Logged quietly , we'll nudge you in a bit");
   };
 
   const elevated = state.burnoutLevel !== 'green';
@@ -101,7 +101,7 @@ export function BreaksScreen({ navigation }: any) {
       <View style={styles.header}>
         <AppText variant="h1">{mode === 'idle' ? 'Break Time' : mode === 'focus' ? 'Focus Session' : 'On a Break'}</AppText>
         <AppText variant="bodySmall" color="secondary">
-          {mode === 'idle' ? 'Choose what feels right for you' : mode === 'focus' ? 'Stay with it — one session at a time' : selectedBreak?.title}
+          {mode === 'idle' ? 'Choose what feels right for you' : mode === 'focus' ? 'Stay with it , one session at a time' : selectedBreak?.title}
         </AppText>
       </View>
 

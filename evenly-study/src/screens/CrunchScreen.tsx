@@ -33,13 +33,13 @@ export function CrunchScreen({ navigation }: any) {
       <View style={styles.header}>
         <AppText variant="h1">Crunch Mode</AppText>
         <AppText variant="bodySmall" color="secondary">
-          For exam seasons — protects sleep, meals and movement, drops the nice-to-haves
+          For exam seasons , protects sleep, meals and movement, drops the nice-to-haves
         </AppText>
       </View>
 
       {status.phase === 'active' && (
         <Card>
-          <AppText variant="h2">Active — {status.daysLeft} day{status.daysLeft === 1 ? '' : 's'} left</AppText>
+          <AppText variant="h2">Active , {status.daysLeft} day{status.daysLeft === 1 ? '' : 's'} left</AppText>
           <AppText variant="bodySmall" color="secondary" style={styles.line}>
             Short, frequent breaks. Minimum sleep protected. Long wind-downs and extra tips are paused.
           </AppText>
@@ -49,7 +49,7 @@ export function CrunchScreen({ navigation }: any) {
 
       {status.phase === 'recovery' && (
         <Card>
-          <AppText variant="h2">Recovery — {status.daysLeft} day{status.daysLeft === 1 ? '' : 's'} left</AppText>
+          <AppText variant="h2">Recovery , {status.daysLeft} day{status.daysLeft === 1 ? '' : 's'} left</AppText>
           <AppText variant="bodySmall" color="secondary" style={styles.line}>
             Longer, restorative breaks. Bedtime shifted 30 minutes earlier. No new heavy load for now.
           </AppText>

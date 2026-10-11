@@ -26,7 +26,7 @@ async function scheduleReviewNotification(reviewDay: string) {
   await Notifications.scheduleNotificationAsync({
     content: {
       title: REVIEW_TITLE,
-      body: 'A minute to look back — and one small idea for next week.',
+      body: 'A minute to look back , and one small idea for next week.',
       sound: false,
     },
     trigger: {
@@ -48,7 +48,7 @@ export function ReviewsScreen() {
   useEffect(() => {
     if (state.settings.reviewReminder) {
       scheduleReviewNotification(state.settings.reviewDay).catch(() => {
-        // Notifications unavailable (e.g. web) — the screen still works.
+        // Notifications unavailable (e.g. web) , the screen still works.
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

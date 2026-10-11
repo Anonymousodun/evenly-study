@@ -49,7 +49,7 @@ export function HomeScreen({ navigation }: any) {
         style={[styles.supportBtn, { backgroundColor: theme.colors.danger }]}
         onPress={() => navigation.navigate('Support')}
       >
-        <MaterialCommunityIcons name="lifebuoy" size={22} color="#FFFFFF" />
+        <MaterialCommunityIcons name="menu" size={24} color="#FFFFFF" />
       </TouchableOpacity>
 
       <View style={styles.indicatorContainer}>
@@ -68,7 +68,7 @@ export function HomeScreen({ navigation }: any) {
 
       {!checkedInToday && (
         <Card>
-          <AppText variant="body">Haven't checked in today — it takes 5 seconds.</AppText>
+          <AppText variant="body">Haven't checked in today , it takes 5 seconds.</AppText>
           <Button title="Check in now" onPress={() => navigation.navigate('CheckIn')} variant="secondary" />
         </Card>
       )}
@@ -77,7 +77,7 @@ export function HomeScreen({ navigation }: any) {
         <TouchableOpacity onPress={() => navigation.navigate('Crunch')} activeOpacity={0.8}>
           <Card>
             <AppText variant="label" color="secondary">
-              {crunch.phase === 'active' ? 'Crunch mode — essentials protected' : 'Recovery — easing back'}
+              {crunch.phase === 'active' ? 'Crunch mode , essentials protected' : 'Recovery , easing back'}
             </AppText>
             <AppText variant="body">
               {crunch.phase === 'active'
@@ -126,14 +126,14 @@ export function HomeScreen({ navigation }: any) {
 
       <TouchableOpacity onPress={() => navigation.navigate('WeeklyTrend')} activeOpacity={0.8}>
         <Card>
-          <AppText variant="label" color="secondary">This week — tap for details</AppText>
+          <AppText variant="label" color="secondary">This week , tap for details</AppText>
           <WeeklyTrendMiniChart data={summary.days.map(d => d.level)} />
         </Card>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('Reviews')} activeOpacity={0.8}>
         <Card>
-          <AppText variant="label" color="secondary">Weekly review — tap to read</AppText>
+          <AppText variant="label" color="secondary">Weekly review , tap to read</AppText>
           <AppText variant="body">Look back, then one small idea for next week.</AppText>
         </Card>
       </TouchableOpacity>
@@ -158,7 +158,7 @@ export function HomeScreen({ navigation }: any) {
 
       <TouchableOpacity onPress={() => navigation.navigate('Tips')} activeOpacity={0.8}>
         <Card>
-          <AppText variant="label" color="secondary">60-Second Tips — tap to browse</AppText>
+          <AppText variant="label" color="secondary">60-Second Tips , tap to browse</AppText>
           <AppText variant="body">Sleep, breaks, stress and focus, one minute at a time.</AppText>
         </Card>
       </TouchableOpacity>

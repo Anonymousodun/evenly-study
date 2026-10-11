@@ -42,7 +42,7 @@ export function useSchedule() {
     try {
       await api.del(`/api/schedule/${blockId}`);
     } catch {
-      // Offline — still remove locally.
+      // Offline , still remove locally.
     }
     dispatch({ type: 'DELETE_SCHEDULE_BLOCK', payload: blockId });
   };
@@ -59,7 +59,7 @@ export function useSchedule() {
         try {
           await api.del(`/api/schedule/${current.id}`);
         } catch {
-          // Offline — still remove locally.
+          // Offline , still remove locally.
         }
         dispatch({ type: 'DELETE_SCHEDULE_BLOCK', payload: current.id });
       }
@@ -78,7 +78,7 @@ export function useSchedule() {
       try {
         await api.del(`/api/schedule/${current.id}`);
       } catch {
-        // Offline — still remove locally.
+        // Offline , still remove locally.
       }
       dispatch({ type: 'DELETE_SCHEDULE_BLOCK', payload: current.id });
     }

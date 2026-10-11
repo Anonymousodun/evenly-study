@@ -1,7 +1,7 @@
 import { ScheduleBlock, Settings } from '../types';
 
 // Immediate, factual overload flags for the working schedule (PRD 7.2).
-// Shown on the same screen as soon as the schedule changes — never as a
+// Shown on the same screen as soon as the schedule changes , never as a
 // separate notification. Suggested fixes only touch study time; fixed
 // commitments (class/work/other) are reported factually with no fix prescribed.
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -63,7 +63,7 @@ export function analyzeSchedule(blocks: ScheduleBlock[], settings: Settings): Sc
           : `Consider moving ${nightStudy.map(b => `"${b.title}"`).join(' or ')} earlier.`,
       });
       if (fixedOnly && nightBusy > 0) {
-        flags[flags.length - 1].text += ' The squeeze comes from fixed commitments — no study changes suggested.';
+        flags[flags.length - 1].text += ' The squeeze comes from fixed commitments , no study changes suggested.';
       }
     }
 
@@ -74,7 +74,7 @@ export function analyzeSchedule(blocks: ScheduleBlock[], settings: Settings): Sc
       flags.push({
         id: `heavy-${day}`,
         kind: 'heavy-day',
-        text: `${DAY_NAMES[day]} has ${fmtHours(dayTotal)} hours scheduled — a heavy day.`,
+        text: `${DAY_NAMES[day]} has ${fmtHours(dayTotal)} hours scheduled , a heavy day.`,
         fix: study.length > 0
           ? `Consider splitting or moving ${study.map(b => `"${b.title}"`).join(', ')}.`
           : undefined,

@@ -77,10 +77,10 @@ function calculateSleepHours(bedtime: string, wakeTime: string): number {
 export function getBurnoutSuggestion(level: BurnoutLevel): string {
   switch (level) {
     case 'green':
-      return "You're in a healthy zone — keep it up!";
+      return "You're in a healthy zone , keep it up!";
     case 'yellow':
-      return 'Load is building — consider moving one task to tomorrow';
+      return 'Load is building , consider moving one task to tomorrow';
     case 'red':
-      return 'High risk — time to ease off. Want to see how to lighten your load?';
+      return 'High risk , time to ease off. Want to see how to lighten your load?';
   }
 }

@@ -78,5 +78,31 @@
       "region": "AU",
       "icon": "phone-outline"
     }
+  ],
+  "NG": [
+    {
+      "id": "ng-1",
+      "type": "helpline",
+      "label": "SURPIN Helpline (LUTH)",
+      "contact": "0800 078 7746 (toll-free, 24/7)",
+      "region": "NG",
+      "icon": "phone-outline"
+    },
+    {
+      "id": "ng-2",
+      "type": "helpline",
+      "label": "MANI Crisis Line",
+      "contact": "0809 111 6264, 0811 168 0686",
+      "region": "NG",
+      "icon": "phone-outline"
+    },
+    {
+      "id": "ng-3",
+      "type": "helpline",
+      "label": "National Emergency Line",
+      "contact": "112 (toll-free, 24/7)",
+      "region": "NG",
+      "icon": "phone-outline"
+    }
   ]
 }

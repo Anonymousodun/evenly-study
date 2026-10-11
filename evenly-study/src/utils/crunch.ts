@@ -1,7 +1,7 @@
 import { AppState, Settings } from '../types';
 
 // Crunch mode (PRD 7.3): a bounded exam-season mode. Derived purely from
-// dates — no stored transitions needed.
+// dates , no stored transitions needed.
 //  - active: today is within [start, end]
 //  - recovery: within 3 days after end (longer breaks, earlier cutoff, no new load)
 export type CrunchPhase = 'off' | 'active' | 'recovery';

@@ -88,6 +88,10 @@ export interface Settings {
   crunch: { start: string; end: string } | null;
   crunchDeclined: boolean;
   sleepTargetHours: number; // default 8, adjustable
+  counselorName: string;
+  counselorPhone: string;
+  trustedName: string;
+  trustedPhone: string;
 }
 
 export interface Suggestion {

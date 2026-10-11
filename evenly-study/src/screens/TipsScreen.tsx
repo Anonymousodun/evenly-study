@@ -43,7 +43,7 @@ export function TipsScreen({ route }: any) {
       <View style={styles.header}>
         <AppText variant="h1">60-Second Tips</AppText>
         <AppText variant="bodySmall" color="secondary">
-          Quick reads — nothing here takes longer than a minute.
+          Quick reads , nothing here takes longer than a minute.
         </AppText>
       </View>
 

@@ -85,7 +85,7 @@ export function SleepSettingsScreen() {
           <AppText variant="h2" style={styles.bedtime}>{lastLabel}</AppText>
           {debt.shortNights > 0 && (
             <AppText variant="bodySmall" color="secondary">
-              About {debt.debtHours}h borrowed this week — it resets every week.
+              About {debt.debtHours}h borrowed this week , it resets every week.
             </AppText>
           )}
         </Card>

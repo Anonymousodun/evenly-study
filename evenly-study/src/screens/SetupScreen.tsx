@@ -110,7 +110,10 @@ export function SetupScreen({ navigation }: any) {
   const back = () => setStep(Math.max(step - 1, 0));
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor: theme.colors.bg }]}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: theme.colors.bg }]}
+      contentContainerStyle={styles.content}
+    >
       <ProgressBar steps={TOTAL_STEPS} currentStep={step} />
 
       {step === 0 && (
@@ -225,8 +228,13 @@ export function SetupScreen({ navigation }: any) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  content: {
+    flexGrow: 1,
+    justifyContent: 'center',
     padding: 24,
     paddingTop: 60,
+    paddingBottom: 60,
   },
   header: {
     marginBottom: 24,
