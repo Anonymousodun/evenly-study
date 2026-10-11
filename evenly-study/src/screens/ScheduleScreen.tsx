@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
@@ -194,6 +194,13 @@ export function ScheduleScreen({ navigation }: any) {
 
       <View style={styles.fab}>
         <Button title="+ Add Block" onPress={() => navigation.navigate('ScheduleForm')} />
+        {Platform.OS !== 'web' && (
+          <Button
+            title="Scan Timetable"
+            variant="secondary"
+            onPress={() => navigation.navigate('TimetableScan')}
+          />
+        )}
       </View>
     </View>
   );
@@ -265,5 +272,6 @@ const styles = StyleSheet.create({
     bottom: 100,
     left: 24,
     right: 24,
+    gap: 8,
   },
 });

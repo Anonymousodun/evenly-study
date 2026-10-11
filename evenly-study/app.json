@@ -32,6 +32,16 @@
         "projectId": "2d54401f-a912-412b-8e3d-0bc4c127802a"
       }
     },
-    "owner": "anonymoustaofik"
+    "owner": "anonymoustaofik",
+    "plugins": [
+      "expo-mlkit-ocr",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Evenly Study needs access to your photos so you can scan a timetable.",
+          "cameraPermission": "Evenly Study needs the camera so you can photograph a timetable."
+        }
+      ]
+    ]
   }
 }

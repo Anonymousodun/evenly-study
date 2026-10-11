@@ -13,8 +13,10 @@ import { ReviewsScreen } from '../screens/ReviewsScreen';
 import { CrunchScreen } from '../screens/CrunchScreen';
 import { TipsScreen } from '../screens/TipsScreen';
 import { ShareScreen } from '../screens/ShareScreen';
+import { TimetableScanScreen } from '../screens/TimetableScanScreen';
 import { SleepSettingsScreen } from '../screens/SleepSettingsScreen';
 import { AuthScreen } from '../screens/AuthScreen';
+import { WelcomeScreen } from '../screens/WelcomeScreen';
 import { AISupportScreen } from '../screens/AISupportScreen';
 import { useAppContext } from '../context/AppContext';
 import { useSync } from '../hooks/useSync';
@@ -56,11 +58,13 @@ export function AppNavigator() {
           <Stack.Screen name="Crunch" component={CrunchScreen} />
           <Stack.Screen name="Tips" component={TipsScreen} />
           <Stack.Screen name="Share" component={ShareScreen} />
+          <Stack.Screen name="TimetableScan" component={TimetableScanScreen} />
           <Stack.Screen name="SleepSettings" component={SleepSettingsScreen} />
         </Stack.Navigator>
         </>
       ) : (
         <Stack.Navigator screenOptions={screenOptions}>
+          <Stack.Screen name="Welcome" component={WelcomeScreen} />
           <Stack.Screen name="Auth" component={AuthScreen} />
         </Stack.Navigator>
       )}
