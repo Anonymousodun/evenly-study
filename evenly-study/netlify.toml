@@ -1,11 +1,6 @@
-[build]
-  publish = "dist"
-  command = "npx expo export --platform web"
+# Static Drop: files are pre-built, so there is no build command.
+# React Navigation deep links need every route served by index.html.
 
-[build.environment]
-  NODE_VERSION = "20"
-
-# React Navigation deep links need every route served by index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
