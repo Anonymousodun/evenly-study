@@ -1,6 +1,6 @@
 export const lightTheme = {
   colors: {
-    primary: '#4A7FA5',
+    primary: '#2196F3',
     warning: '#C9A227',
     danger: '#B87333',
     bg: '#F7F5F0',
@@ -41,7 +41,7 @@ export const lightTheme = {
 
 export const darkTheme = {
   colors: {
-    primary: '#7FB0D0',
+    primary: '#64B5F6',
     warning: '#D4B744',
     danger: '#D48A5C',
     bg: '#1A1A1A',

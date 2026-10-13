@@ -17,7 +17,7 @@
     "android": {
       "package": "com.anonymousodun.evenlystudy",
       "adaptiveIcon": {
-        "backgroundColor": "#4A7FA5",
+        "backgroundColor": "#2196F3",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
