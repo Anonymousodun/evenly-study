@@ -5,6 +5,7 @@ import AppText from '../components/common/Text';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
+import { CountryPicker, countryByCode } from '../components/common/CountryPicker';
 import { signUp, signIn } from '../api/auth';
 
 const IS_WEB = Platform.OS === 'web';
@@ -20,8 +21,6 @@ export function AuthScreen() {
   const [showForm, setShowForm] = useState(!IS_WEB);
   const [country, setCountry] = useState('NG');
 
-  const COUNTRIES = ['NG', 'US', 'UK', 'CA', 'AU'];
-
   const handleSubmit = async () => {
     if (!email.trim() || !password || busy) return;
     setError('');
@@ -30,8 +29,9 @@ export function AuthScreen() {
       const user = isLogin
         ? await signIn(email.trim(), password)
         : await signUp(name.trim(), email.trim(), password);
+      dispatch({ type: 'UPDATE_SETTINGS', payload: { region: country } });
       if (!isLogin) {
-        dispatch({ type: 'UPDATE_SETTINGS', payload: { setupComplete: false, region: country } });
+        dispatch({ type: 'UPDATE_SETTINGS', payload: { setupComplete: false } });
       }
       dispatch({
         type: 'SET_USER',
@@ -104,36 +104,19 @@ export function AuthScreen() {
       {(!IS_WEB || showForm) && (
         <>
       {!isLogin && (
-        <>
         <Input
           label="Name"
           value={name}
           onChangeText={setName}
           placeholder="Your name"
         />
-        <AppText variant="label" color="secondary">Country</AppText>
-        <AppText variant="bodySmall" color="secondary" style={styles.countryHint}>
-          Support numbers and resources match your country.
-        </AppText>
-        <View style={styles.countryRow}>
-          {COUNTRIES.map(c => (
-            <TouchableOpacity
-              key={c}
-              style={[
-                styles.countryBtn,
-                { borderColor: theme.colors.border },
-                country === c && { backgroundColor: theme.colors.primary, borderColor: theme.colors.primary },
-              ]}
-              onPress={() => setCountry(c)}
-            >
-              <AppText variant="label" style={{ color: country === c ? '#FFFFFF' : theme.colors.text }}>
-                {c}
-              </AppText>
-            </TouchableOpacity>
-          ))}
-        </View>
-        </>
       )}
+
+      <AppText variant="label" color="secondary">Country</AppText>
+      <AppText variant="bodySmall" color="secondary" style={styles.countryHint}>
+        Support numbers and resources match {countryByCode(country).name}.
+      </AppText>
+      <CountryPicker selected={country} onSelect={setCountry} />
 
       <Input
         label="Email"
@@ -216,17 +199,5 @@ const styles = StyleSheet.create({
   countryHint: {
     marginTop: 4,
     marginBottom: 8,
-  },
-  countryRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 20,
-  },
-  countryBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
-    borderWidth: 1,
-    alignItems: 'center',
   },
 });

@@ -1,13 +1,13 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Switch, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, ScrollView, Switch, TouchableOpacity, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
+import { CountryPicker, countryByCode } from '../components/common/CountryPicker';
 import { signOut } from '../api/auth';
-
-const REGIONS = ['NG', 'US', 'UK', 'CA', 'AU'];
+import { api } from '../api/client';
 const REVIEW_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export function SettingsScreen({ navigation }: any) {
@@ -16,6 +16,29 @@ export function SettingsScreen({ navigation }: any) {
   const handleLogout = async () => {
     await signOut();
     dispatch({ type: 'SET_USER', payload: null });
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete account?',
+      'This permanently erases your account and all of its data. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await api.del('/api/me/account');
+            } catch {
+              // Server unreachable: still clear local state below.
+            }
+            await signOut();
+            dispatch({ type: 'RESET_DATA' });
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -122,31 +145,17 @@ export function SettingsScreen({ navigation }: any) {
       </Card>
 
       <Card>
-        <AppText variant="label" color="secondary">Support region</AppText>
-        <View style={styles.regionRow}>
-          {REGIONS.map(region => {
-            const selected = state.settings.region === region;
-            return (
-              <TouchableOpacity
-                key={region}
-                style={[
-                  styles.regionBtn,
-                  { backgroundColor: selected ? theme.colors.primary : theme.colors.bg },
-                ]}
-                onPress={() => dispatch({ type: 'UPDATE_SETTINGS', payload: { region } })}
-              >
-                <AppText
-                  variant="label"
-                  style={{ color: selected ? '#FFFFFF' : theme.colors.text }}
-                >
-                  {region}
-                </AppText>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        <AppText variant="label" color="secondary">Country and support region</AppText>
+        <AppText variant="bodySmall" color="secondary" style={styles.regionHint}>
+          Helplines and resources match {countryByCode(state.settings.region).name}.
+        </AppText>
+        <CountryPicker
+          selected={state.settings.region}
+          onSelect={(code) => dispatch({ type: 'UPDATE_SETTINGS', payload: { region: code } })}
+        />
       </Card>
 
+      <Button title="Delete account" onPress={handleDeleteAccount} variant="text" />
       <Button title="Log out" onPress={handleLogout} variant="text" />
 
       <View style={{ height: 100 }} />
@@ -187,6 +196,10 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     alignItems: 'center',
+  },
+  regionHint: {
+    marginTop: 4,
+    marginBottom: 12,
   },
   dayBtn: {
     flex: 1,

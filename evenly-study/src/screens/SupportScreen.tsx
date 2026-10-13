@@ -154,6 +154,14 @@ export function SupportScreen({ navigation }: any) {
         Helplines ({region})
       </AppText>
       {!!callError && <AppText variant="bodySmall" style={styles.error}>{callError}</AppText>}
+      {helplines.length === 0 && (
+        <Card>
+          <AppText variant="bodySmall" color="secondary">
+            We do not have a verified helpline for your country yet. In an emergency, call
+            your local emergency number right away.
+          </AppText>
+        </Card>
+      )}
       {helplines.map(r => (
         <SupportCard
           key={r.id}

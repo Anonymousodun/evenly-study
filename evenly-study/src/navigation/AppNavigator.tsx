@@ -17,6 +17,7 @@ import { TimetableScanScreen } from '../screens/TimetableScanScreen';
 import { SleepSettingsScreen } from '../screens/SleepSettingsScreen';
 import { AuthScreen } from '../screens/AuthScreen';
 import { WelcomeScreen } from '../screens/WelcomeScreen';
+import { SplashScreen } from '../screens/SplashScreen';
 import { AISupportScreen } from '../screens/AISupportScreen';
 import { useAppContext } from '../context/AppContext';
 import { useSync } from '../hooks/useSync';
@@ -64,6 +65,7 @@ export function AppNavigator() {
         </>
       ) : (
         <Stack.Navigator screenOptions={screenOptions}>
+          <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
           <Stack.Screen name="Auth" component={AuthScreen} />
         </Stack.Navigator>

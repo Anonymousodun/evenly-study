@@ -104,5 +104,65 @@
       "region": "NG",
       "icon": "phone-outline"
     }
+  ],
+  "IE": [
+    {
+      "id": "ie-1",
+      "type": "helpline",
+      "label": "Samaritans Ireland",
+      "contact": "116 123 (free, 24/7)",
+      "region": "IE",
+      "icon": "phone-outline"
+    }
+  ],
+  "NZ": [
+    {
+      "id": "nz-1",
+      "type": "helpline",
+      "label": "Need to Talk (1737)",
+      "contact": "Call or text 1737 (free, 24/7)",
+      "region": "NZ",
+      "icon": "phone-outline"
+    }
+  ],
+  "ZA": [
+    {
+      "id": "za-1",
+      "type": "helpline",
+      "label": "SADAG Suicide Crisis Line",
+      "contact": "0800 567 567 (toll-free, 24/7)",
+      "region": "ZA",
+      "icon": "phone-outline"
+    }
+  ],
+  "IN": [
+    {
+      "id": "in-1",
+      "type": "helpline",
+      "label": "Kiran Mental Health Helpline",
+      "contact": "1800-599-0019 (toll-free, 24/7)",
+      "region": "IN",
+      "icon": "phone-outline"
+    }
+  ],
+  "IT": [
+    {
+      "id": "it-1",
+      "type": "helpline",
+      "label": "Telefono Amico Italia",
+      "contact": "02 2327 2327",
+      "region": "IT",
+      "icon": "phone-outline"
+    }
+  ],
+  "AL": [
+    {
+      "id": "al-1",
+      "type": "helpline",
+      "label": "ALO 116-111 (national child and youth line)",
+      "contact": "116 111 (free, 24/7)",
+      "region": "AL",
+      "icon": "phone-outline"
+    }
   ]
 }
