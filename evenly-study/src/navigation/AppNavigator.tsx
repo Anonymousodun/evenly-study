@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { TabNavigator } from './TabNavigator';
@@ -22,21 +23,71 @@ import { HelpNowScreen } from '../screens/HelpNowScreen';
 import { AISupportScreen } from '../screens/AISupportScreen';
 import { useAppContext } from '../context/AppContext';
 import { useSync } from '../hooks/useSync';
+import { useSettingsSync } from '../hooks/useSettingsSync';
+import { api, setSessionToken } from '../api/client';
+import { loadSession, clearSession } from '../api/sessionStore';
 
 const Stack = createNativeStackNavigator();
 
 function SyncGate() {
   useSync();
+  useSettingsSync();
   return null;
 }
 
 export function AppNavigator() {
-  const { state, theme } = useAppContext();
+  const { state, dispatch, theme } = useAppContext();
+  const [restoring, setRestoring] = useState(true);
+
+  // Restore a saved sign-in once at launch. Invalid or expired sessions
+  // fall back to the logged-out flow.
+  useEffect(() => {
+    (async () => {
+      try {
+        if (!state.user) {
+          const saved = await loadSession();
+          if (saved) {
+            setSessionToken(saved.token);
+            try {
+              const me = await api.get<{ profile: { id: string; email: string; name: string | null; target_bedtime: string | null } } & { user: unknown }>('/api/me');
+              const now = new Date().toISOString();
+              dispatch({
+                type: 'SET_USER',
+                payload: {
+                  id: me.profile.id,
+                  email: me.profile.email,
+                  name: me.profile.name || saved.user.name || me.profile.email,
+                  password_hash: '',
+                  target_bedtime: me.profile.target_bedtime,
+                  created_at: now,
+                  updated_at: now,
+                },
+              });
+            } catch {
+              setSessionToken(null);
+              await clearSession();
+            }
+          }
+        }
+      } finally {
+        setRestoring(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const screenOptions = {
     headerShown: false,
     contentStyle: { backgroundColor: theme.colors.bg },
   };
+
+  if (restoring && !state.user) {
+    return (
+      <View style={[styles.restoring, { backgroundColor: '#0B1520' }]}>
+        <ActivityIndicator size="large" color="#2196F3" />
+      </View>
+    );
+  }
 
   return (
     <NavigationContainer>
@@ -75,3 +126,11 @@ export function AppNavigator() {
     </NavigationContainer>
   );
 }
+
+const styles = StyleSheet.create({
+  restoring: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
