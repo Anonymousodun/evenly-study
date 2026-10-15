@@ -121,29 +121,12 @@ export function AuthScreen() {
       {(!IS_WEB || showForm) && (
         <>
       {!isLogin && (
-        <>
-          <Input
-            label="Name"
-            value={name}
-            onChangeText={setName}
-            placeholder="Your name"
-          />
-          <TouchableOpacity style={styles.confirmRow} onPress={() => setConfirm18(!confirm18)}>
-            <MaterialCommunityIcons
-              name={confirm18 ? 'checkbox-marked' : 'checkbox-blank-outline'}
-              size={26}
-              color={theme.colors.primary}
-            />
-            <AppText variant="bodySmall" style={styles.confirmText}>
-              I confirm I am 18 or older
-            </AppText>
-          </TouchableOpacity>
-          <AppText variant="label" color="secondary">Country</AppText>
-          <AppText variant="bodySmall" color="secondary" style={styles.countryHint}>
-            Support numbers and resources match {countryByCode(country).name}.
-          </AppText>
-          <CountryPicker selected={country} onSelect={setCountry} />
-        </>
+        <Input
+          label="Name or nickname"
+          value={name}
+          onChangeText={setName}
+          placeholder="What should we call you?"
+        />
       )}
 
       <Input
@@ -171,6 +154,26 @@ export function AuthScreen() {
           placeholder="Repeat your password"
           secureTextEntry
         />
+      )}
+
+      {!isLogin && (
+        <>
+          <AppText variant="label" color="secondary">Country</AppText>
+          <AppText variant="bodySmall" color="secondary" style={styles.countryHint}>
+            Support numbers and resources match {countryByCode(country).name}.
+          </AppText>
+          <CountryPicker selected={country} onSelect={setCountry} />
+          <TouchableOpacity style={styles.confirmRow} onPress={() => setConfirm18(!confirm18)}>
+            <MaterialCommunityIcons
+              name={confirm18 ? 'checkbox-marked' : 'checkbox-blank-outline'}
+              size={26}
+              color={theme.colors.primary}
+            />
+            <AppText variant="bodySmall" style={styles.confirmText}>
+              I confirm I am 18 or older
+            </AppText>
+          </TouchableOpacity>
+        </>
       )}
 
       {!!error && (
