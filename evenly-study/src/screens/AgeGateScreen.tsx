@@ -28,10 +28,14 @@ export function AgeGateScreen({ navigation }: any) {
     })();
   }, [navigation]);
 
-  const submitYear = async (y: number) => {
-    setPickerOpen(false);
+  const chooseYear = (y: number) => {
     setYear(y);
-    if (isAdultBirthYear(y)) {
+    setPickerOpen(false);
+  };
+
+  const handleContinue = async () => {
+    if (year === null) return;
+    if (isAdultBirthYear(year)) {
       await saveAgeGate('adult');
       navigation.replace('Auth');
     } else {
@@ -77,6 +81,10 @@ export function AgeGateScreen({ navigation }: any) {
         <MaterialCommunityIcons name="chevron-down" size={24} color={theme.colors.textSecondary} />
       </TouchableOpacity>
 
+      <View style={styles.continueWrap}>
+        <Button title="Continue" onPress={handleContinue} disabled={year === null} />
+      </View>
+
       <Modal visible={pickerOpen} animationType="slide" onRequestClose={() => setPickerOpen(false)}>
         <View style={[styles.modal, { backgroundColor: theme.colors.bg }]}>
           <View style={styles.modalHeader}>
@@ -91,7 +99,7 @@ export function AgeGateScreen({ navigation }: any) {
             initialScrollIndex={20}
             getItemLayout={(_, index) => ({ length: 52, offset: 52 * index, index })}
             renderItem={({ item }) => (
-              <TouchableOpacity style={styles.yearRow} onPress={() => submitYear(item)}>
+              <TouchableOpacity style={styles.yearRow} onPress={() => chooseYear(item)}>
                 <AppText variant="body">{String(item)}</AppText>
                 {item === year && (
                   <MaterialCommunityIcons name="check" size={22} color={theme.colors.primary} />
@@ -129,6 +137,10 @@ const styles = StyleSheet.create({
     padding: 18,
     borderRadius: 12,
     borderWidth: 1,
+  },
+  continueWrap: {
+    width: '100%',
+    marginTop: 24,
   },
   modal: {
     flex: 1,
