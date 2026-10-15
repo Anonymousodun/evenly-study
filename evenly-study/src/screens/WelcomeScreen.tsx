@@ -22,7 +22,7 @@ export function WelcomeScreen({ navigation }: any) {
         Balanced study sessions, real breaks, protected sleep.
       </AppText>
       <View style={styles.actions}>
-        <Button title="Continue" onPress={() => navigation.navigate('AgeGate')} />
+        <Button title="Continue" onPress={() => navigation.navigate('Auth')} />
         <TouchableOpacity onPress={() => navigation.navigate('HelpNow')}>
           <AppText variant="bodySmall" color="secondary" style={styles.helpLink}>
             Need help now? Talk to someone, no account needed

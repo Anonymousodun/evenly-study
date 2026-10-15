@@ -18,7 +18,6 @@ import { SleepSettingsScreen } from '../screens/SleepSettingsScreen';
 import { AuthScreen } from '../screens/AuthScreen';
 import { WelcomeScreen } from '../screens/WelcomeScreen';
 import { SplashScreen } from '../screens/SplashScreen';
-import { AgeGateScreen } from '../screens/AgeGateScreen';
 import { HelpNowScreen } from '../screens/HelpNowScreen';
 import { AISupportScreen } from '../screens/AISupportScreen';
 import { useAppContext } from '../context/AppContext';
@@ -69,7 +68,6 @@ export function AppNavigator() {
         <Stack.Navigator screenOptions={screenOptions}>
           <Stack.Screen name="Splash" component={SplashScreen} />
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
-          <Stack.Screen name="AgeGate" component={AgeGateScreen} />
           <Stack.Screen name="HelpNow" component={HelpNowScreen} />
           <Stack.Screen name="Auth" component={AuthScreen} />
         </Stack.Navigator>

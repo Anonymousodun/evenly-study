@@ -22,10 +22,15 @@ export function AuthScreen() {
   const [busy, setBusy] = useState(false);
   const [showForm, setShowForm] = useState(!IS_WEB);
   const [country, setCountry] = useState('NG');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [confirm18, setConfirm18] = useState(false);
 
   const handleSubmit = async () => {
     if (!email.trim() || !password || busy) return;
+    if (!isLogin && password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
     if (!isLogin && !confirm18) {
       setError('Please confirm you are 18 or older to create an account.');
       return;
@@ -157,6 +162,16 @@ export function AuthScreen() {
         placeholder="Your password"
         secureTextEntry
       />
+
+      {!isLogin && (
+        <Input
+          label="Confirm password"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          placeholder="Repeat your password"
+          secureTextEntry
+        />
+      )}
 
       {!!error && (
         <AppText variant="bodySmall" style={styles.error}>{error}</AppText>
