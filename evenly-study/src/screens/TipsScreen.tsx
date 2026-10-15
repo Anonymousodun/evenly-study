@@ -13,9 +13,24 @@ const CATEGORY_ICONS: Record<TipCategory, string> = {
   Focus: 'target',
 };
 
+// Maps onboarding reasons to the category shown first. Phone only.
+const REASON_CATEGORY: Record<string, TipCategory> = {
+  'Not sleeping well': 'Sleep',
+  'Hard to focus': 'Focus',
+  'Constant stress': 'Stress',
+  'Not taking breaks': 'Breaks',
+};
+
+function firstCategory(reasons: string[]): TipCategory | 'All' {
+  for (const r of reasons) {
+    if (REASON_CATEGORY[r]) return REASON_CATEGORY[r];
+  }
+  return 'All';
+}
+
 export function TipsScreen({ route }: any) {
-  const { theme } = useAppContext();
-  const [category, setCategory] = useState<TipCategory | 'All'>('All');
+  const { theme, state } = useAppContext();
+  const [category, setCategory] = useState<TipCategory | 'All'>(() => firstCategory(state.settings.reasons ?? []));
   const [openId, setOpenId] = useState<string | null>(route?.params?.topicId ?? null);
 
   const topics = getTipsByCategory(category);

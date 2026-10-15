@@ -23,7 +23,9 @@ const WINDOW_PRESETS = [
   { label: 'Evening', start: '18:00', end: '21:00' },
 ];
 
-const TOTAL_STEPS = 5;
+const REASONS = ['Not sleeping well', 'Hard to focus', 'Constant stress', 'Not taking breaks'];
+
+const TOTAL_STEPS = 7;
 
 interface QuickTask {
   id: string;
@@ -38,6 +40,24 @@ function datePlusDays(days: number): string {
   return d.toISOString().split('T')[0];
 }
 
+function WhyLine({ children }: { children: React.ReactNode }) {
+  const { theme } = useAppContext();
+  return (
+    <AppText variant="caption" style={{ color: theme.colors.textSecondary, marginBottom: 16 }}>
+      {children}
+    </AppText>
+  );
+}
+
+function PrivacyFooter() {
+  const { theme } = useAppContext();
+  return (
+    <AppText variant="caption" style={{ ...styles.privacy, color: theme.colors.textSecondary }}>
+      Your data is private. We never share it with your school, your parents, or anyone else unless you choose to.
+    </AppText>
+  );
+}
+
 export function SetupScreen({ navigation }: any) {
   const { state, dispatch, theme } = useAppContext();
   const { addTask } = useTasks();
@@ -49,6 +69,7 @@ export function SetupScreen({ navigation }: any) {
   const [quickTasks, setQuickTasks] = useState<QuickTask[]>([]);
   const [taskTitle, setTaskTitle] = useState('');
   const [taskType, setTaskType] = useState<TaskType | null>(null);
+  const [reasons, setReasons] = useState<string[]>([]);
 
   const toggleWindow = (preset: { start: string; end: string }) => {
     const exists = windows.some(w => w.start === preset.start && w.end === preset.end);
@@ -57,6 +78,22 @@ export function SetupScreen({ navigation }: any) {
     } else {
       setWindows([...windows, preset]);
     }
+  };
+
+  const toggleReason = (reason: string) => {
+    if (reasons.includes(reason)) {
+      const next = reasons.filter(r => r !== reason);
+      setReasons(next);
+      dispatch({ type: 'UPDATE_SETTINGS', payload: { reasons: next } });
+    } else if (reasons.length < 2) {
+      const next = [...reasons, reason];
+      setReasons(next);
+      dispatch({ type: 'UPDATE_SETTINGS', payload: { reasons: next } });
+    }
+  };
+
+  const setNotifications = (on: boolean) => {
+    dispatch({ type: 'UPDATE_SETTINGS', payload: { windDownReminder: on, reviewReminder: on } });
   };
 
   const addQuickTask = () => {
@@ -80,6 +117,24 @@ export function SetupScreen({ navigation }: any) {
 
   const removeQuickTask = (id: string) => {
     setQuickTasks(quickTasks.filter(t => t.id !== id));
+  };
+
+  const ensureDemoUser = () => {
+    if (!state.user) {
+      const now = new Date().toISOString();
+      dispatch({
+        type: 'SET_USER',
+        payload: {
+          id: 'demo-user',
+          email: 'demo@evenly.app',
+          name: 'Demo Student',
+          password_hash: '',
+          target_bedtime: '23:00',
+          created_at: now,
+          updated_at: now,
+        },
+      });
+    }
   };
 
   const finishSetup = async () => {
@@ -106,8 +161,27 @@ export function SetupScreen({ navigation }: any) {
     navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
   };
 
+  // Skip: defaults, labelled in the UI. Reminders stay off until asked for.
+  const skipSetup = () => {
+    ensureDemoUser();
+    dispatch({
+      type: 'UPDATE_SETTINGS',
+      payload: { setupComplete: true, windDownReminder: false, reviewReminder: false },
+    });
+    navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+  };
+
   const next = () => setStep(Math.min(step + 1, TOTAL_STEPS - 1));
   const back = () => setStep(Math.max(step - 1, 0));
+
+  const skipButton = (
+    <>
+      <Button title="Skip for now" onPress={skipSetup} variant="text" />
+      <AppText variant="caption" color="secondary" style={styles.skipNote}>
+        Uses defaults (bedtime 23:00, daytime hours, reminders off). Change anytime in Settings.
+      </AppText>
+    </>
+  );
 
   return (
     <ScrollView
@@ -126,14 +200,15 @@ export function SetupScreen({ navigation }: any) {
             </AppText>
           </View>
           <Card>
-            <AppText variant="body" style={styles.bullet}>🌿 One calm indicator for your burnout risk</AppText>
-            <AppText variant="body" style={styles.bullet}>⏸️ Well-timed breaks that fit your day</AppText>
-            <AppText variant="body" style={styles.bullet}>🌙 Protected sleep, every night</AppText>
+            <AppText variant="body" style={styles.bullet}>One calm indicator for your burnout risk</AppText>
+            <AppText variant="body" style={styles.bullet}>Well-timed breaks that fit your day</AppText>
+            <AppText variant="body" style={styles.bullet}>Protected sleep, every night</AppText>
           </Card>
           <AppText variant="caption" color="secondary" style={styles.note}>
             Setup takes under 2 minutes. Skip anything you like.
           </AppText>
           <Button title="Let's get started" onPress={next} />
+          <PrivacyFooter />
         </View>
       )}
 
@@ -145,9 +220,12 @@ export function SetupScreen({ navigation }: any) {
               We'll protect your rest time
             </AppText>
           </View>
+          <WhyLine>So we can remind you to wind down. It's not a judgment of your schedule.</WhyLine>
           <TimePicker label="Target bedtime" value={bedtime} options={BEDTIME_OPTIONS} onSelect={setBedtime} />
           <Button title="Continue" onPress={next} />
           <Button title="Back" onPress={back} variant="text" />
+          {skipButton}
+          <PrivacyFooter />
         </View>
       )}
 
@@ -159,6 +237,7 @@ export function SetupScreen({ navigation }: any) {
               Pick the windows that fit your day
             </AppText>
           </View>
+          <WhyLine>So breaks and reminders fit around your real day.</WhyLine>
           {WINDOW_PRESETS.map(preset => {
             const selected = windows.some(w => w.start === preset.start && w.end === preset.end);
             return (
@@ -172,12 +251,14 @@ export function SetupScreen({ navigation }: any) {
                 onPress={() => toggleWindow(preset)}
               >
                 <AppText variant="body">{preset.label}</AppText>
-                <AppText variant="caption" color="secondary">{preset.start} – {preset.end}</AppText>
+                <AppText variant="caption" color="secondary">{preset.start} - {preset.end}</AppText>
               </TouchableOpacity>
             );
           })}
           <Button title="Continue" onPress={next} />
           <Button title="Back" onPress={back} variant="text" />
+          {skipButton}
+          <PrivacyFooter />
         </View>
       )}
 
@@ -189,6 +270,7 @@ export function SetupScreen({ navigation }: any) {
               Add up to 3 tasks ({quickTasks.length}/3)
             </AppText>
           </View>
+          <WhyLine>So we can tell when your week is getting too heavy.</WhyLine>
           <TaskTemplatePicker selected={taskType} onSelect={setTaskType} />
           <Input
             value={taskTitle}
@@ -200,16 +282,94 @@ export function SetupScreen({ navigation }: any) {
             <View key={t.id} style={[styles.addedTask, { backgroundColor: theme.colors.surface }]}>
               <AppText variant="body">{t.title}</AppText>
               <TouchableOpacity onPress={() => removeQuickTask(t.id)}>
-                <AppText variant="body" color="secondary">✕</AppText>
+                <AppText variant="body" color="secondary">X</AppText>
               </TouchableOpacity>
             </View>
           ))}
           <Button title="Continue" onPress={next} />
           <Button title="Back" onPress={back} variant="text" />
+          {skipButton}
+          <PrivacyFooter />
         </View>
       )}
 
       {step === 4 && (
+        <View>
+          <View style={styles.header}>
+            <AppText variant="h1" style={styles.title}>How should we check in?</AppText>
+            <AppText variant="bodySmall" color="secondary" style={styles.subtitle}>
+              Pick how you want us to check in. You can change this anytime in Settings.
+            </AppText>
+          </View>
+          <WhyLine>Pick how you want us to check in. You can change this anytime in Settings.</WhyLine>
+          <TouchableOpacity
+            style={[styles.choiceCard, { backgroundColor: theme.colors.surface }, state.settings.windDownReminder && { borderColor: theme.colors.primary }]}
+            onPress={() => setNotifications(true)}
+          >
+            <MaterialCommunityIcons name="bell-ring-outline" size={28} color={theme.colors.primary} />
+            <View style={styles.choiceText}>
+              <AppText variant="body">Gentle reminders</AppText>
+              <AppText variant="caption" color="secondary">Wind-down and review nudges, quietly</AppText>
+            </View>
+            {state.settings.windDownReminder && (
+              <MaterialCommunityIcons name="check-circle" size={24} color={theme.colors.primary} />
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.choiceCard, { backgroundColor: theme.colors.surface }, !state.settings.windDownReminder && { borderColor: theme.colors.primary }]}
+            onPress={() => setNotifications(false)}
+          >
+            <MaterialCommunityIcons name="bell-off-outline" size={28} color={theme.colors.textSecondary} />
+            <View style={styles.choiceText}>
+              <AppText variant="body">Quiet mode</AppText>
+              <AppText variant="caption" color="secondary">No notifications at all</AppText>
+            </View>
+            {!state.settings.windDownReminder && (
+              <MaterialCommunityIcons name="check-circle" size={24} color={theme.colors.primary} />
+            )}
+          </TouchableOpacity>
+          <Button title="Continue" onPress={next} />
+          <Button title="Back" onPress={back} variant="text" />
+          {skipButton}
+          <PrivacyFooter />
+        </View>
+      )}
+
+      {step === 5 && (
+        <View>
+          <View style={styles.header}>
+            <AppText variant="h1" style={styles.title}>What brought you here?</AppText>
+            <AppText variant="bodySmall" color="secondary" style={styles.subtitle}>
+              Optional. Pick up to two. It only changes which tips we show first.
+            </AppText>
+          </View>
+          {REASONS.map(r => {
+            const selected = reasons.includes(r);
+            return (
+              <TouchableOpacity
+                key={r}
+                style={[
+                  styles.windowCard,
+                  { backgroundColor: theme.colors.surface },
+                  selected && { borderColor: theme.colors.primary, borderWidth: 2 },
+                ]}
+                onPress={() => toggleReason(r)}
+              >
+                <AppText variant="body">{r}</AppText>
+                {selected && (
+                  <MaterialCommunityIcons name="check" size={22} color={theme.colors.primary} />
+                )}
+              </TouchableOpacity>
+            );
+          })}
+          <Button title="Continue" onPress={next} />
+          <Button title="Back" onPress={back} variant="text" />
+          {skipButton}
+          <PrivacyFooter />
+        </View>
+      )}
+
+      {step === 6 && (
         <View style={styles.centered}>
           <IndicatorBadge level="green" />
           <AppText variant="h2" style={styles.title}>{getBurnoutSuggestion('green')}</AppText>
@@ -217,6 +377,7 @@ export function SetupScreen({ navigation }: any) {
             You're all set. Check in daily and we'll keep an eye on your balance.
           </AppText>
           <Button title="Start using Evenly Study" onPress={finishSetup} />
+          <PrivacyFooter />
         </View>
       )}
 
@@ -256,6 +417,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 24,
   },
+  skipNote: {
+    textAlign: 'center',
+    marginTop: 8,
+    marginBottom: 8,
+  },
+  privacy: {
+    textAlign: 'center',
+    marginTop: 24,
+    lineHeight: 18,
+  },
   windowCard: {
     padding: 16,
     borderRadius: 12,
@@ -265,6 +436,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: 'transparent',
+  },
+  choiceCard: {
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  choiceText: {
+    flex: 1,
   },
   addedTask: {
     padding: 16,

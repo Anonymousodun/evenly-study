@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
 import { Card } from '../components/common/Card';
@@ -21,25 +22,12 @@ export function AuthScreen() {
   const [busy, setBusy] = useState(false);
   const [showForm, setShowForm] = useState(!IS_WEB);
   const [country, setCountry] = useState('NG');
-  const [dob, setDob] = useState('');
-
-  const validDob = (value: string): boolean => {
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-    const d = new Date(value + 'T12:00:00');
-    if (Number.isNaN(d.getTime())) return false;
-    const now = new Date();
-    let age = now.getFullYear() - d.getFullYear();
-    const hadBirthday =
-      now.getMonth() > d.getMonth() ||
-      (now.getMonth() === d.getMonth() && now.getDate() >= d.getDate());
-    if (!hadBirthday) age -= 1;
-    return age >= 5 && age <= 120;
-  };
+  const [confirm18, setConfirm18] = useState(false);
 
   const handleSubmit = async () => {
     if (!email.trim() || !password || busy) return;
-    if (!isLogin && !validDob(dob.trim())) {
-      setError('Enter your date of birth as YYYY-MM-DD.');
+    if (!isLogin && !confirm18) {
+      setError('Please confirm you are 18 or older to create an account.');
       return;
     }
     setError('');
@@ -49,9 +37,10 @@ export function AuthScreen() {
         ? await signIn(email.trim(), password)
         : await signUp(name.trim(), email.trim(), password);
       if (!isLogin) {
-        dispatch({ type: 'UPDATE_SETTINGS', payload: { setupComplete: false, region: country, dob: dob.trim() } });
+        const adultConfirmedAt = new Date().toISOString();
+        dispatch({ type: 'UPDATE_SETTINGS', payload: { setupComplete: false, region: country, adultConfirmedAt } });
         try {
-          await api.patch('/api/me/settings', { settings: { region: country, dob: dob.trim() } });
+          await api.patch('/api/me/settings', { settings: { region: country, adultConfirmedAt } });
         } catch {
           // Offline: profile settings stay on this device until sync.
         }
@@ -134,12 +123,16 @@ export function AuthScreen() {
             onChangeText={setName}
             placeholder="Your name"
           />
-          <Input
-            label="Date of birth"
-            value={dob}
-            onChangeText={setDob}
-            placeholder="YYYY-MM-DD"
-          />
+          <TouchableOpacity style={styles.confirmRow} onPress={() => setConfirm18(!confirm18)}>
+            <MaterialCommunityIcons
+              name={confirm18 ? 'checkbox-marked' : 'checkbox-blank-outline'}
+              size={26}
+              color={theme.colors.primary}
+            />
+            <AppText variant="bodySmall" style={styles.confirmText}>
+              I confirm I am 18 or older
+            </AppText>
+          </TouchableOpacity>
           <AppText variant="label" color="secondary">Country</AppText>
           <AppText variant="bodySmall" color="secondary" style={styles.countryHint}>
             Support numbers and resources match {countryByCode(country).name}.
@@ -229,5 +222,14 @@ const styles = StyleSheet.create({
   countryHint: {
     marginTop: 4,
     marginBottom: 8,
+  },
+  confirmRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginBottom: 20,
+  },
+  confirmText: {
+    flex: 1,
   },
 });

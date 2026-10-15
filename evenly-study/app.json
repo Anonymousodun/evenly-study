@@ -41,7 +41,8 @@
           "photosPermission": "Evenly Study needs access to your photos so you can scan a timetable.",
           "cameraPermission": "Evenly Study needs the camera so you can photograph a timetable."
         }
-      ]
+      ],
+      "expo-secure-store"
     ]
   }
 }

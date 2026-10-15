@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Linking, Alert } from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
@@ -7,6 +7,7 @@ import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import { SupportCard } from '../components/support/SupportCard';
+import { dial } from '../utils/calling';
 import supportResources from '../data/supportResources.json';
 
 interface Resource {
@@ -19,25 +20,6 @@ interface Resource {
 }
 
 const resourcesByRegion = supportResources as Record<string, Resource[]>;
-
-async function dial(raw: string, onError: (msg: string) => void) {
-  const match = raw.match(/[\d][\d\s\-()]{2,}[\d]/);
-  if (!match) {
-    onError('No callable number found here.');
-    return;
-  }
-  const url = `tel:${match[0].replace(/[^+\d]/g, '')}`;
-  try {
-    const ok = await Linking.canOpenURL(url);
-    if (ok) {
-      await Linking.openURL(url);
-    } else {
-      onError('Calling is not available on this device.');
-    }
-  } catch {
-    onError('Could not start the call.');
-  }
-}
 
 function ContactEditor({
   title,

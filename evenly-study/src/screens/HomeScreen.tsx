@@ -32,8 +32,10 @@ export function HomeScreen({ navigation }: any) {
   const activeSuggestion = suggestions[0] ?? null;
   const distress = checkDistress(state);
   const [distressDismissed, setDistressDismissed] = useState(false);
+  const [reminderPromptDismissed, setReminderPromptDismissed] = useState(false);
   const crunch = getCrunchStatus(state.settings);
   const crunchSuggest = shouldSuggestCrunch(state);
+  const remindersOff = !state.settings.windDownReminder && !state.settings.reviewReminder;
 
   const today = new Date().toISOString().split('T')[0];
   const checkedInToday = state.dailyCheckIns.some(c => c.date === today);
@@ -68,8 +70,25 @@ export function HomeScreen({ navigation }: any) {
 
       {!checkedInToday && (
         <Card>
-          <AppText variant="body">Haven't checked in today , it takes 5 seconds.</AppText>
+          <AppText variant="body">Haven't checked in today, it takes 5 seconds.</AppText>
           <Button title="Check in now" onPress={() => navigation.navigate('CheckIn')} variant="secondary" />
+        </Card>
+      )}
+
+      {remindersOff && !reminderPromptDismissed && (
+        <Card>
+          <AppText variant="label" color="secondary">Gentle reminders are off</AppText>
+          <AppText variant="body" style={styles.bannerText}>
+            Want a quiet nudge at wind-down time? You can turn it off again anytime.
+          </AppText>
+          <View style={styles.distressActions}>
+            <Button
+              title="Turn on"
+              onPress={() => dispatch({ type: 'UPDATE_SETTINGS', payload: { windDownReminder: true, reviewReminder: true } })}
+              variant="secondary"
+            />
+            <Button title="Not now" onPress={() => setReminderPromptDismissed(true)} variant="text" />
+          </View>
         </Card>
       )}
 

@@ -21,6 +21,8 @@ const defaultSettings: Settings = {
   trustedName: '',
   trustedPhone: '',
   dob: '',
+  adultConfirmedAt: '',
+  reasons: [],
 };
 
 const initialState: AppState = {

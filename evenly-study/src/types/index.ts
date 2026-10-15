@@ -92,7 +92,9 @@ export interface Settings {
   counselorPhone: string;
   trustedName: string;
   trustedPhone: string;
-  dob: string; // YYYY-MM-DD, collected at signup
+  dob: string; // YYYY-MM-DD, collected at signup (legacy; signup now uses adultConfirmedAt)
+  adultConfirmedAt: string; // ISO timestamp of the 18+ confirmation at signup
+  reasons: string[]; // onboarding "what brought you here", phone only, never sent
 }
 
 export interface Suggestion {
