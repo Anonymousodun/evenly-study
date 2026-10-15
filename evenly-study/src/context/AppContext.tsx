@@ -20,6 +20,7 @@ const defaultSettings: Settings = {
   counselorPhone: '',
   trustedName: '',
   trustedPhone: '',
+  dob: '',
 };
 
 const initialState: AppState = {

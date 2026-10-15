@@ -7,6 +7,7 @@ import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import { CountryPicker, countryByCode } from '../components/common/CountryPicker';
 import { signUp, signIn } from '../api/auth';
+import { api } from '../api/client';
 
 const IS_WEB = Platform.OS === 'web';
 
@@ -20,18 +21,40 @@ export function AuthScreen() {
   const [busy, setBusy] = useState(false);
   const [showForm, setShowForm] = useState(!IS_WEB);
   const [country, setCountry] = useState('NG');
+  const [dob, setDob] = useState('');
+
+  const validDob = (value: string): boolean => {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+    const d = new Date(value + 'T12:00:00');
+    if (Number.isNaN(d.getTime())) return false;
+    const now = new Date();
+    let age = now.getFullYear() - d.getFullYear();
+    const hadBirthday =
+      now.getMonth() > d.getMonth() ||
+      (now.getMonth() === d.getMonth() && now.getDate() >= d.getDate());
+    if (!hadBirthday) age -= 1;
+    return age >= 5 && age <= 120;
+  };
 
   const handleSubmit = async () => {
     if (!email.trim() || !password || busy) return;
+    if (!isLogin && !validDob(dob.trim())) {
+      setError('Enter your date of birth as YYYY-MM-DD.');
+      return;
+    }
     setError('');
     setBusy(true);
     try {
       const user = isLogin
         ? await signIn(email.trim(), password)
         : await signUp(name.trim(), email.trim(), password);
-      dispatch({ type: 'UPDATE_SETTINGS', payload: { region: country } });
       if (!isLogin) {
-        dispatch({ type: 'UPDATE_SETTINGS', payload: { setupComplete: false } });
+        dispatch({ type: 'UPDATE_SETTINGS', payload: { setupComplete: false, region: country, dob: dob.trim() } });
+        try {
+          await api.patch('/api/me/settings', { settings: { region: country, dob: dob.trim() } });
+        } catch {
+          // Offline: profile settings stay on this device until sync.
+        }
       }
       dispatch({
         type: 'SET_USER',
@@ -104,19 +127,26 @@ export function AuthScreen() {
       {(!IS_WEB || showForm) && (
         <>
       {!isLogin && (
-        <Input
-          label="Name"
-          value={name}
-          onChangeText={setName}
-          placeholder="Your name"
-        />
+        <>
+          <Input
+            label="Name"
+            value={name}
+            onChangeText={setName}
+            placeholder="Your name"
+          />
+          <Input
+            label="Date of birth"
+            value={dob}
+            onChangeText={setDob}
+            placeholder="YYYY-MM-DD"
+          />
+          <AppText variant="label" color="secondary">Country</AppText>
+          <AppText variant="bodySmall" color="secondary" style={styles.countryHint}>
+            Support numbers and resources match {countryByCode(country).name}.
+          </AppText>
+          <CountryPicker selected={country} onSelect={setCountry} />
+        </>
       )}
-
-      <AppText variant="label" color="secondary">Country</AppText>
-      <AppText variant="bodySmall" color="secondary" style={styles.countryHint}>
-        Support numbers and resources match {countryByCode(country).name}.
-      </AppText>
-      <CountryPicker selected={country} onSelect={setCountry} />
 
       <Input
         label="Email"

@@ -92,6 +92,7 @@ export interface Settings {
   counselorPhone: string;
   trustedName: string;
   trustedPhone: string;
+  dob: string; // YYYY-MM-DD, collected at signup
 }
 
 export interface Suggestion {
