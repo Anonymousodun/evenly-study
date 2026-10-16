@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Switch, TouchableOpacity, Alert } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppContext } from '../context/AppContext';
@@ -9,15 +9,116 @@ import { CountryPicker, countryByCode } from '../components/common/CountryPicker
 import { signOut } from '../api/auth';
 import { api } from '../api/client';
 import { useTour } from '../components/tour/TourContext';
+import { Input } from '../components/common/Input';
+import {
+  saveR2Config,
+  loadR2Config,
+  backupFileKey,
+  uploadBackup,
+  downloadBackup,
+} from '../api/r2';
+import { serializeBackup, parseBackup } from '../utils/backup';
 const REVIEW_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export function SettingsScreen({ navigation }: any) {
   const { state, dispatch, theme, isDark, toggleTheme } = useAppContext();
   const tour = useTour();
+  const [r2endpoint, setR2Endpoint] = useState('');
+  const [r2bucket, setR2Bucket] = useState('evenly-study-backups');
+  const [r2keyId, setR2KeyId] = useState('');
+  const [r2secret, setR2Secret] = useState('');
+  const [r2saved, setR2Saved] = useState(false);
+  const [backupMsg, setBackupMsg] = useState('');
+  const [backupBusy, setBackupBusy] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const cfg = await loadR2Config();
+      if (cfg) {
+        setR2Endpoint(cfg.endpoint);
+        setR2Bucket(cfg.bucket);
+        setR2KeyId(cfg.keyId);
+        setR2Saved(true);
+      }
+    })();
+  }, []);
 
   const handleLogout = async () => {
     await signOut();
     dispatch({ type: 'SET_USER', payload: null });
+  };
+
+  const handleSaveR2 = async () => {
+    setBackupMsg('');
+    if (!r2endpoint.trim() || !r2bucket.trim() || !r2keyId.trim() || !r2secret.trim()) {
+      setBackupMsg('Fill in all four backup fields first.');
+      return;
+    }
+    await saveR2Config({
+      endpoint: r2endpoint.trim(),
+      bucket: r2bucket.trim(),
+      keyId: r2keyId.trim(),
+      secret: r2secret.trim(),
+    });
+    setR2Secret('');
+    setR2Saved(true);
+    setBackupMsg('Backup details saved on this phone.');
+  };
+
+  const handleBackupNow = async () => {
+    setBackupMsg('');
+    if (!state.user || state.user.id === 'demo-user') {
+      setBackupMsg('Sign in with an account first. Demo data stays on this phone.');
+      return;
+    }
+    const cfg = await loadR2Config();
+    if (!cfg) {
+      setBackupMsg('Save your backup details first.');
+      return;
+    }
+    setBackupBusy(true);
+    try {
+      await uploadBackup(cfg, backupFileKey(state.user.id), serializeBackup(state));
+      setBackupMsg('Backed up just now.');
+    } catch {
+      setBackupMsg('Backup failed. Check the details and connection.');
+    } finally {
+      setBackupBusy(false);
+    }
+  };
+
+  const handleRestore = async () => {
+    setBackupMsg('');
+    if (!state.user || state.user.id === 'demo-user') {
+      setBackupMsg('Sign in with an account first, then restore.');
+      return;
+    }
+    const cfg = await loadR2Config();
+    if (!cfg) {
+      setBackupMsg('Save your backup details first.');
+      return;
+    }
+    setBackupBusy(true);
+    try {
+      const json = await downloadBackup(cfg, backupFileKey(state.user.id));
+      const data = parseBackup(json);
+      dispatch({
+        type: 'LOAD_DATA',
+        payload: {
+          tasks: data.tasks,
+          sleep: data.sleep,
+          dailyCheckIns: data.dailyCheckIns,
+          skippedBreaks: data.skippedBreaks,
+          schedule: data.schedule,
+        },
+      });
+      dispatch({ type: 'UPDATE_SETTINGS', payload: data.settings });
+      setBackupMsg('Restore complete.');
+    } catch {
+      setBackupMsg('Restore failed. Check the details and connection.');
+    } finally {
+      setBackupBusy(false);
+    }
   };
 
   const handleDeleteAccount = () => {
@@ -168,6 +269,29 @@ export function SettingsScreen({ navigation }: any) {
       />
       <Button title="Log out" onPress={handleLogout} variant="text" />
 
+      <Card>
+        <AppText variant="label" color="secondary">Cloud backup</AppText>
+        <AppText variant="bodySmall" color="secondary" style={styles.regionHint}>
+          Keys stay in this phone's keychain. Never passwords, never tokens.
+        </AppText>
+        <Input label="Endpoint" value={r2endpoint} onChangeText={setR2Endpoint} placeholder="https://<account>.r2.cloudflarestorage.com" autoCapitalize="none" />
+        <Input label="Bucket" value={r2bucket} onChangeText={setR2Bucket} placeholder="evenly-study-backups" autoCapitalize="none" />
+        <Input label="Access key ID" value={r2keyId} onChangeText={setR2KeyId} placeholder="R2 access key" autoCapitalize="none" />
+        <Input label="Secret access key" value={r2secret} onChangeText={setR2Secret} placeholder={r2saved ? 'Saved (enter to replace)' : 'R2 secret'} autoCapitalize="none" secureTextEntry />
+        {!!backupMsg && (
+          <AppText variant="bodySmall" color="secondary" style={styles.backupMsg}>{backupMsg}</AppText>
+        )}
+        <Button title="Save backup details" onPress={handleSaveR2} variant="secondary" />
+        <View style={styles.backupRow}>
+          <View style={styles.backupBtn}>
+            <Button title={backupBusy ? 'Working…' : 'Back up now'} onPress={handleBackupNow} disabled={backupBusy} />
+          </View>
+          <View style={styles.backupBtn}>
+            <Button title="Restore" onPress={handleRestore} disabled={backupBusy} variant="secondary" />
+          </View>
+        </View>
+      </Card>
+
       <View style={{ height: 100 }} />
     </ScrollView>
   );
@@ -210,6 +334,17 @@ const styles = StyleSheet.create({
   regionHint: {
     marginTop: 4,
     marginBottom: 12,
+  },
+  backupMsg: {
+    marginVertical: 8,
+  },
+  backupRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 12,
+  },
+  backupBtn: {
+    flex: 1,
   },
   dayBtn: {
     flex: 1,
