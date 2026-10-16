@@ -8,10 +8,12 @@ import { Button } from '../components/common/Button';
 import { CountryPicker, countryByCode } from '../components/common/CountryPicker';
 import { signOut } from '../api/auth';
 import { api } from '../api/client';
+import { useTour } from '../components/tour/TourContext';
 const REVIEW_DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export function SettingsScreen({ navigation }: any) {
   const { state, dispatch, theme, isDark, toggleTheme } = useAppContext();
+  const tour = useTour();
 
   const handleLogout = async () => {
     await signOut();
@@ -156,6 +158,14 @@ export function SettingsScreen({ navigation }: any) {
       </Card>
 
       <Button title="Delete account" onPress={handleDeleteAccount} variant="text" />
+      <Button
+        title="Take the tour again"
+        variant="secondary"
+        onPress={() => {
+          navigation.navigate('Home');
+          setTimeout(() => tour.startTour(), 400);
+        }}
+      />
       <Button title="Log out" onPress={handleLogout} variant="text" />
 
       <View style={{ height: 100 }} />

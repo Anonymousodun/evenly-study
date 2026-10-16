@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useAppContext } from '../context/AppContext';
 import { Card } from '../components/common/Card';
@@ -16,6 +16,8 @@ import { getScienceNote } from '../utils/science';
 import { checkDistress } from '../utils/distress';
 import { getCrunchStatus, shouldSuggestCrunch } from '../utils/crunch';
 import { getTipForSuggestion } from '../utils/tips';
+import { useTour } from '../components/tour/TourContext';
+import { tourKeyFor, loadTourFlag, saveTourFlag } from '../utils/tourStore';
 
 function greeting(): string {
   const hour = new Date().getHours();
@@ -36,6 +38,36 @@ export function HomeScreen({ navigation }: any) {
   const crunch = getCrunchStatus(state.settings);
   const crunchSuggest = shouldSuggestCrunch(state);
   const remindersOff = !state.settings.windDownReminder && !state.settings.reviewReminder;
+  const tour = useTour();
+  const supportBtnRef = useRef<any>(null);
+  const [tourPrompt, setTourPrompt] = useState<'loading' | 'show' | 'hide'>('loading');
+
+  // Offer the tour once per account (demo included). Re-checks whenever the
+  // tour closes, so completing or skipping hides the prompt for good.
+  useEffect(() => {
+    if (tour.active) {
+      setTourPrompt('hide');
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const flag = await loadTourFlag(tourKeyFor(state.user?.id));
+      if (!cancelled) setTourPrompt(flag ? 'hide' : 'show');
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [tour.active, state.user?.id]);
+
+  const handleTourStart = () => {
+    setTourPrompt('hide');
+    tour.startTour();
+  };
+
+  const handleTourDecline = async () => {
+    await saveTourFlag(tourKeyFor(state.user?.id), 'skipped');
+    setTourPrompt('hide');
+  };
 
   const today = new Date().toISOString().split('T')[0];
   const checkedInToday = state.dailyCheckIns.some(c => c.date === today);
@@ -48,8 +80,18 @@ export function HomeScreen({ navigation }: any) {
       </View>
 
       <TouchableOpacity
+        ref={supportBtnRef}
         style={[styles.supportBtn, { backgroundColor: theme.colors.danger }]}
         onPress={() => navigation.navigate('Support')}
+        accessibilityLabel="Support"
+        accessibilityHint="Opens support options and helplines"
+        onLayout={() => {
+          supportBtnRef.current?.measure(
+            (_x: number, _y: number, width: number, height: number, pageX: number, pageY: number) => {
+              tour.setSupportSpot({ x: pageX, y: pageY, width, height });
+            }
+          );
+        }}
       >
         <MaterialCommunityIcons name="menu" size={24} color="#FFFFFF" />
       </TouchableOpacity>
@@ -72,6 +114,19 @@ export function HomeScreen({ navigation }: any) {
         <Card>
           <AppText variant="body">Haven't checked in today, it takes 5 seconds.</AppText>
           <Button title="Check in now" onPress={() => navigation.navigate('CheckIn')} variant="secondary" />
+        </Card>
+      )}
+
+      {tourPrompt === 'show' && (
+        <Card>
+          <AppText variant="label" color="secondary">Quick tour? About 30 seconds</AppText>
+          <AppText variant="body" style={styles.bannerText}>
+            See where everything lives, one tap at a time.
+          </AppText>
+          <View style={styles.distressActions}>
+            <Button title="Start tour" onPress={handleTourStart} variant="secondary" />
+            <Button title="No thanks" onPress={handleTourDecline} variant="text" />
+          </View>
         </Card>
       )}
 

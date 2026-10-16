@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Platform, Modal, FlatList } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAppContext } from '../context/AppContext';
 import AppText from '../components/common/Text';
@@ -9,6 +9,10 @@ import { Input } from '../components/common/Input';
 import { CountryPicker, countryByCode } from '../components/common/CountryPicker';
 import { signUp, signIn } from '../api/auth';
 import { api } from '../api/client';
+import { loadAgeGate, saveAgeGate, isAdultBirthYear } from '../utils/ageGate';
+
+const THIS_YEAR = new Date().getFullYear();
+const YEAR_OPTIONS = Array.from({ length: 121 }, (_, i) => THIS_YEAR - i);
 
 const IS_WEB = Platform.OS === 'web';
 
@@ -23,7 +27,18 @@ export function AuthScreen() {
   const [showForm, setShowForm] = useState(!IS_WEB);
   const [country, setCountry] = useState('NG');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [confirm18, setConfirm18] = useState(false);
+  const [birthYear, setBirthYear] = useState<number | null>(null);
+  const [yearPickerOpen, setYearPickerOpen] = useState(false);
+  const [minorBlocked, setMinorBlocked] = useState(false);
+
+  // A stored under-18 result blocks signup immediately, so closing and
+  // reopening cannot bypass it by picking a different year.
+  useEffect(() => {
+    (async () => {
+      const stored = await loadAgeGate();
+      if (stored === 'under18') setMinorBlocked(true);
+    })();
+  }, []);
 
   const handleSubmit = async () => {
     if (!email.trim() || !password || busy) return;
@@ -31,9 +46,17 @@ export function AuthScreen() {
       setError('Passwords do not match.');
       return;
     }
-    if (!isLogin && !confirm18) {
-      setError('Please confirm you are 18 or older to create an account.');
-      return;
+    if (!isLogin) {
+      if (birthYear === null) {
+        setError('Please select your birth year.');
+        return;
+      }
+      if (!isAdultBirthYear(birthYear)) {
+        await saveAgeGate('under18');
+        setMinorBlocked(true);
+        return;
+      }
+      await saveAgeGate('adult');
     }
     setError('');
     setBusy(true);
@@ -156,25 +179,70 @@ export function AuthScreen() {
         />
       )}
 
-      {!isLogin && (
+      {!isLogin && !minorBlocked && (
         <>
+          <AppText variant="label" color="secondary">Birth year</AppText>
+          <AppText variant="bodySmall" color="secondary" style={styles.countryHint}>
+            We ask so we can set up the app the right way for your age. We don't keep your exact birth year.
+          </AppText>
+          <TouchableOpacity
+            style={[styles.yearButton, { borderColor: theme.colors.border, backgroundColor: theme.colors.surface }]}
+            onPress={() => setYearPickerOpen(true)}
+          >
+            <AppText variant="body">{birthYear === null ? 'Select year' : String(birthYear)}</AppText>
+            <MaterialCommunityIcons name="chevron-down" size={22} color={theme.colors.textSecondary} />
+          </TouchableOpacity>
           <AppText variant="label" color="secondary">Country</AppText>
           <AppText variant="bodySmall" color="secondary" style={styles.countryHint}>
             Support numbers and resources match {countryByCode(country).name}.
           </AppText>
           <CountryPicker selected={country} onSelect={setCountry} />
-          <TouchableOpacity style={styles.confirmRow} onPress={() => setConfirm18(!confirm18)}>
-            <MaterialCommunityIcons
-              name={confirm18 ? 'checkbox-marked' : 'checkbox-blank-outline'}
-              size={26}
-              color={theme.colors.primary}
-            />
-            <AppText variant="bodySmall" style={styles.confirmText}>
-              I confirm I am 18 or older
-            </AppText>
-          </TouchableOpacity>
         </>
       )}
+
+      {!isLogin && minorBlocked && (
+        <View style={styles.blockedBox}>
+          <MaterialCommunityIcons name="shield-account-outline" size={44} color={theme.colors.primary} />
+          <AppText variant="h2" style={styles.blockedTitle}>Evenly Study is currently for adults</AppText>
+          <AppText variant="bodySmall" color="secondary" style={styles.blockedText}>
+            Thanks for being honest. Because you are under 18, we cannot set up an account for you right now.
+            No account was created and nothing was sent anywhere.
+          </AppText>
+          <Button
+            title="Need help now?"
+            variant="secondary"
+            onPress={() => (navigation as any)?.navigate?.('HelpNow')}
+          />
+        </View>
+      )}
+
+      <Modal visible={yearPickerOpen} animationType="slide" onRequestClose={() => setYearPickerOpen(false)}>
+        <View style={[styles.modal, { backgroundColor: theme.colors.bg }]}>
+          <View style={styles.modalHeader}>
+            <AppText variant="h2">Birth year</AppText>
+            <TouchableOpacity onPress={() => setYearPickerOpen(false)} hitSlop={12}>
+              <MaterialCommunityIcons name="close" size={26} color={theme.colors.text} />
+            </TouchableOpacity>
+          </View>
+          <FlatList
+            data={YEAR_OPTIONS}
+            keyExtractor={y => String(y)}
+            initialScrollIndex={20}
+            getItemLayout={(_, index) => ({ length: 52, offset: 52 * index, index })}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.yearRow}
+                onPress={() => { setBirthYear(item); setYearPickerOpen(false); }}
+              >
+                <AppText variant="body">{String(item)}</AppText>
+                {item === birthYear && (
+                  <MaterialCommunityIcons name="check" size={22} color={theme.colors.primary} />
+                )}
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      </Modal>
 
       {!!error && (
         <AppText variant="bodySmall" style={styles.error}>{error}</AppText>
@@ -183,7 +251,7 @@ export function AuthScreen() {
       <Button
         title={busy ? 'Please wait…' : isLogin ? 'Sign In' : 'Sign Up'}
         onPress={handleSubmit}
-        disabled={busy}
+        disabled={busy || (!isLogin && minorBlocked)}
       />
 
       <TouchableOpacity onPress={enterDemoMode}>
@@ -241,13 +309,45 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 8,
   },
-  confirmRow: {
+  yearButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    justifyContent: 'space-between',
+    padding: 16,
+    borderRadius: 12,
+    borderWidth: 1,
     marginBottom: 20,
   },
-  confirmText: {
+  modal: {
     flex: 1,
+    padding: 24,
+    paddingTop: 60,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  yearRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.05)',
+  },
+  blockedBox: {
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  blockedTitle: {
+    textAlign: 'center',
+    marginTop: 12,
+  },
+  blockedText: {
+    textAlign: 'center',
+    marginTop: 8,
+    marginBottom: 16,
   },
 });

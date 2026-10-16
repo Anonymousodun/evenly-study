@@ -24,6 +24,7 @@ import { AISupportScreen } from '../screens/AISupportScreen';
 import { useAppContext } from '../context/AppContext';
 import { useSync } from '../hooks/useSync';
 import { useSettingsSync } from '../hooks/useSettingsSync';
+import { useTour } from '../components/tour/TourContext';
 import { api, setSessionToken } from '../api/client';
 import { loadSession, clearSession } from '../api/sessionStore';
 
@@ -38,6 +39,7 @@ function SyncGate() {
 export function AppNavigator() {
   const { state, dispatch, theme } = useAppContext();
   const [restoring, setRestoring] = useState(true);
+  const tour = useTour();
 
   // Restore a saved sign-in once at launch. Invalid or expired sessions
   // fall back to the logged-out flow.
@@ -89,8 +91,20 @@ export function AppNavigator() {
     );
   }
 
+  const leafPath = (navState: any): string => {
+    let node = navState;
+    const names: string[] = [];
+    while (node && node.routes && typeof node.index === 'number') {
+      const route = node.routes[node.index];
+      if (!route) break;
+      names.push(route.name);
+      node = route.state;
+    }
+    return names.join('/');
+  };
+
   return (
-    <NavigationContainer>
+    <NavigationContainer onStateChange={(navState) => tour.noteNavigation(leafPath(navState))}>
       {state.user ? (
         <>
         <SyncGate />
