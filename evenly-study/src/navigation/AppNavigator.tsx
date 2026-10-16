@@ -104,7 +104,14 @@ export function AppNavigator() {
   };
 
   return (
-    <NavigationContainer onStateChange={(navState) => tour.noteNavigation(leafPath(navState))}>
+    <NavigationContainer
+      onStateChange={(navState) => {
+        const path = leafPath(navState);
+        // eslint-disable-next-line no-console
+        console.log('[Evenly route]', path);
+        tour.noteNavigation(path);
+      }}
+    >
       {state.user ? (
         <>
         <SyncGate />
