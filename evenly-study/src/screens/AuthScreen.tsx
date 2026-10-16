@@ -9,7 +9,7 @@ import { Input } from '../components/common/Input';
 import { CountryPicker, countryByCode } from '../components/common/CountryPicker';
 import { signUp, signIn } from '../api/auth';
 import { api } from '../api/client';
-import { loadAgeGate, saveAgeGate, isAdultBirthYear } from '../utils/ageGate';
+import { loadAgeGate, saveAgeGate, clearAgeGate, isAdultBirthYear, isBlockExpired } from '../utils/ageGate';
 
 const THIS_YEAR = new Date().getFullYear();
 const YEAR_OPTIONS = Array.from({ length: 121 }, (_, i) => THIS_YEAR - i);
@@ -31,12 +31,19 @@ export function AuthScreen() {
   const [yearPickerOpen, setYearPickerOpen] = useState(false);
   const [minorBlocked, setMinorBlocked] = useState(false);
 
-  // A stored under-18 result blocks signup immediately, so closing and
-  // reopening cannot bypass it by picking a different year.
+  // A stored under-18 result blocks signup for 24 hours, so closing and
+  // reopening cannot bypass it by picking a different year. After 24 hours
+  // the block lifts and the year can be entered again. Login is never blocked.
   useEffect(() => {
     (async () => {
       const stored = await loadAgeGate();
-      if (stored === 'under18') setMinorBlocked(true);
+      if (stored && stored.result === 'under18') {
+        if (isBlockExpired(stored.blockedAt)) {
+          await clearAgeGate();
+        } else {
+          setMinorBlocked(true);
+        }
+      }
     })();
   }, []);
 
@@ -207,6 +214,9 @@ export function AuthScreen() {
           <AppText variant="bodySmall" color="secondary" style={styles.blockedText}>
             Thanks for being honest. Because you are under 18, we cannot set up an account for you right now.
             No account was created and nothing was sent anywhere.
+          </AppText>
+          <AppText variant="bodySmall" color="secondary" style={styles.blockedText}>
+            If you entered the wrong year, you can try again tomorrow.
           </AppText>
           <Button
             title="Need help now?"
